@@ -1,0 +1,12 @@
+Font: Inter  Style: Regular
+Point Size: 90   Padding: 6   SP/PD Ratio: 6.7%
+
+Characters included: 99/99
+Missing characters: 0
+Excluded characters: 0
+
+Characters missing from font file:
+----------------------------------------
+
+Characters excluded from packing:
+----------------------------------------
