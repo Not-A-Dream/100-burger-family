@@ -4,6 +4,8 @@
 
 ### "With help, 3 minutes. Without help, 10 minutes.  One action a day can become 100 memories together."
 
+![Architecture](images/room_005.png)
+
 Unity WebGL cooperative cooking game prototype.
 
 This project is a cooperative cooking game designed to solve a real social problem:
