@@ -28,6 +28,10 @@ public class UIScreenController : MonoBehaviour
     [Header("Assign the 4 panels here (MainMenu/Lobby/InGame/Result).")]
     [SerializeField] private List<PanelEntry> panels = new List<PanelEntry>();
 
+    [Header("HUD (only visible during InGame)")]
+    [SerializeField] private GameObject hudTopPanel;
+    [SerializeField] private GameObject hudButtons;
+
     private readonly Dictionary<UIPanelType, GameObject> _map = new Dictionary<UIPanelType, GameObject>();
 
     private void Awake()
@@ -74,6 +78,10 @@ public class UIScreenController : MonoBehaviour
             if (kv.Value == null) continue;
             kv.Value.SetActive(kv.Key == type);
         }
+
+        bool isInGame = type == UIPanelType.InGame;
+        if (hudTopPanel != null) hudTopPanel.SetActive(isInGame);
+        if (hudButtons  != null) hudButtons.SetActive(isInGame);
     }
 
     // --- Unity Button-friendly wrappers (so OnClick menus always show them) ---

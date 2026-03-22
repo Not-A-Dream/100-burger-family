@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
 
         // init
         state.burgerCount = 0;
-        state.lastMessage = "안녕하세요! 오늘도 같이 햄버거 만들어요.";
+        state.lastMessage = "안녕하세요! 오늘도 같이 햄버거 만들어요";
         _lastDailyResetLocalDate = DateTime.Now.Date;
     }
 
@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
         {
             _lastDailyResetLocalDate = DateTime.Now.Date;
             state.ResetDaily();
-            PushSystemMessage("새로운 하루가 시작됐어요 🌞");
+            PushSystemMessage("새로운 하루가 시작됐어요!");
             NotifyChanged();
         }
 
@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
         {
             state.isCooking = false;
             state.burgerCount += 1;
-            PushSystemMessage($"햄버거 완성! 🍔 (누적 {state.burgerCount}개)");
+            PushSystemMessage($"햄버거 완성! (누적 {state.burgerCount}개)");
             NotifyChanged();
         }
     }
@@ -59,13 +59,13 @@ public class GameManager : MonoBehaviour
     {
         if (state.wateredToday)
         {
-            PushSystemMessage("오늘은 이미 물을 줬어요 💧");
+            PushSystemMessage("오늘은 이미 물을 줬어요!");
             NotifyChanged();
             return;
         }
 
         state.wateredToday = true;
-        PushSystemMessage("오늘 물 줬어요 💧");
+        PushSystemMessage("오늘 물 줬어요!");
         NotifyChanged();
     }
 
@@ -84,9 +84,9 @@ public class GameManager : MonoBehaviour
         state.cookingEndsAtUtc = DateTime.UtcNow.AddMinutes(minutes);
 
         if (state.wateredToday)
-            PushSystemMessage($"햄버거 만들기 시작! (약 {minutes}분) 👍");
+            PushSystemMessage($"햄버거 만들기 시작! (약 {minutes}분)");
         else
-            PushSystemMessage($"재료가 조금 부족해요. (약 {minutes}분) 😅");
+            PushSystemMessage($"재료가 조금 부족해요. (약 {minutes}분)");
 
         NotifyChanged();
     }
@@ -109,6 +109,17 @@ public class GameManager : MonoBehaviour
     {
         OnStateChanged?.Invoke();
     }
+
+    /// <summary>게임 월드에서 직접 버거를 서빙했을 때 호출</summary>
+    public void ServeBurger()
+    {
+        state.burgerCount++;
+        PushSystemMessage($"버거 완성! (누적 {state.burgerCount}개)");
+        NotifyChanged();
+        Debug.Log($"[GameManager] 버거 서빙: {state.burgerCount}개");
+    }
+
+    public void InvokeStateChanged() => NotifyChanged();
 
     // UI에서 남은 시간 표시용
     public int GetRemainingSeconds()

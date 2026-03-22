@@ -15,4 +15,14 @@ public class RoomState
     {
         wateredToday = false;
     }
+
+    /// <summary>게임 재시작 시 전체 초기화</summary>
+    public void Reset()
+    {
+        wateredToday     = false;
+        burgerCount      = 0;
+        isCooking        = false;
+        cookingEndsAtUtc = default;
+        lastMessage      = "같이 햄버거 만들어요!";
+    }
 }
