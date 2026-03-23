@@ -17,3 +17,7 @@ MemoryCaptures/
 *.userprefs
 
 .DS_Store
+
+# 문서 (대용량 바이너리 — 원격 저장소 제외)
+*.pdf
+*.PDF
