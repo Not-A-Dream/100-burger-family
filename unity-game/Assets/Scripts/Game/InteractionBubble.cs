@@ -10,10 +10,10 @@ using TMPro;
 public class InteractionBubble : MonoBehaviour
 {
     [Header("말풍선 설정")]
-    public float showDistance  = 2.2f;
-    public float bobAmplitude  = 0.08f;   // 위아래 둥실 정도
+    public float showDistance  = 2.5f;    // 상호작용 감지 거리 (PlayerController.interactSearchRadius와 맞춤)
+    public float bobAmplitude  = 0.06f;   // 위아래 둥실 정도
     public float bobSpeed      = 2.0f;
-    public Vector3 offset      = new Vector3(0f, 2.2f, 0f);
+    public Vector3 offset      = new Vector3(0f, 1.8f, 0f);  // 오브젝트 위 표시 위치
 
     Interactable _interactable;
     Canvas       _canvas;

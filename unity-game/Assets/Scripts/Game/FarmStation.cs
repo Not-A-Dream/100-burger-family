@@ -22,8 +22,8 @@ public class FarmStation : Interactable
     public override string GetPrompt()
     {
         if (!_ready)
-            return $"🌱 재충전 중... ({_cooldownRemaining:F0}초)";
-        return "🌿 실내 스마트 재배기\n[E] 재료 수확";
+            return $"재충전 중... ({_cooldownRemaining:F0}초)";
+        return "실내 스마트 재배기\n[E] 재료 수확";
     }
 
     public override void Interact(PlayerHand hand)

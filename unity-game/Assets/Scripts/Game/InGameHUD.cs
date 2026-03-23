@@ -23,7 +23,8 @@ public class InGameHUD : MonoBehaviour
     [Header("나가기")]
     public Button backButton;
 
-    CookStation _cookStation;
+    CookStation      _cookStation;
+    PlayerController _player;   // OnDestroy에서 재탐색 없이 해제하기 위해 캐싱
 
     void Start()
     {
@@ -33,12 +34,12 @@ public class InGameHUD : MonoBehaviour
             RefreshBurgerCount();
         }
 
-        // PlayerController 이벤트 구독
-        var player = FindFirstObjectByType<PlayerController>();
-        if (player != null)
+        // PlayerController 이벤트 구독 (참조 캐싱)
+        _player = FindFirstObjectByType<PlayerController>();
+        if (_player != null)
         {
-            player.OnPromptChanged += UpdatePrompt;
-            player.OnItemChanged   += UpdateHeldItem;
+            _player.OnPromptChanged += UpdatePrompt;
+            _player.OnItemChanged   += UpdateHeldItem;
         }
 
         // CookStation 참조
@@ -54,11 +55,11 @@ public class InGameHUD : MonoBehaviour
         if (GameManager.I != null)
             GameManager.I.OnStateChanged -= RefreshBurgerCount;
 
-        var player = FindFirstObjectByType<PlayerController>();
-        if (player != null)
+        // 캐싱된 참조로 해제 (씬 파괴 시 FindFirstObjectByType 호출 방지)
+        if (_player != null)
         {
-            player.OnPromptChanged -= UpdatePrompt;
-            player.OnItemChanged   -= UpdateHeldItem;
+            _player.OnPromptChanged -= UpdatePrompt;
+            _player.OnItemChanged   -= UpdateHeldItem;
         }
     }
 
@@ -83,13 +84,14 @@ public class InGameHUD : MonoBehaviour
 
     void UpdatePrompt(string prompt)
     {
-        if (promptText) promptText.text = prompt;
+        if (promptText)
+            promptText.text = string.IsNullOrEmpty(prompt) ? "WASD로 이동" : prompt;
     }
 
     void UpdateHeldItem(string itemName)
     {
-        if (heldItemText) heldItemText.text =
-            string.IsNullOrEmpty(itemName) ? "" : $"들고 있음: {itemName}";
+        if (heldItemText)
+            heldItemText.text = string.IsNullOrEmpty(itemName) ? "빈 손" : $"들고 있음: {itemName}";
     }
 
     // ── 버튼 핸들러 ───────────────────────────────────────────
