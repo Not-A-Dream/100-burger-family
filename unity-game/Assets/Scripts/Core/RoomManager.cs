@@ -17,11 +17,27 @@ public class RoomSession
 /// </summary>
 public class RoomManager : MonoBehaviour
 {
-    public static RoomManager I { get; private set; }
+    // ── 씬에 없어도 자동 생성되는 Lazy 싱글톤 ──────────────────
+    static RoomManager _instance;
+    public static RoomManager I
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                var go = new GameObject("[RoomManager]");
+                _instance = go.AddComponent<RoomManager>();
+                DontDestroyOnLoad(go);
+                Debug.Log("[RoomManager] 자동 생성됨 (씬에 없었음)");
+            }
+            return _instance;
+        }
+    }
 
-    public RoomSession CurrentSession { get; private set; }
-    public PlayerRole  MyRole         { get; private set; }
-    public bool        IsHost         { get; private set; }
+    public RoomSession  CurrentSession    { get; private set; }
+    public PlayerRole   MyRole            { get; private set; }
+    public CharacterType MyCharacterType  { get; private set; }
+    public bool         IsHost            { get; private set; }
 
     // 같은 앱 안에서 방 공유 (로컬 MVP)
     static readonly Dictionary<string, RoomSession> _sessions = new();
@@ -30,25 +46,30 @@ public class RoomManager : MonoBehaviour
 
     void Awake()
     {
-        if (I != null && I != this) { Destroy(gameObject); return; }
-        I = this;
+        if (_instance != null && _instance != this) { Destroy(gameObject); return; }
+        _instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
     // ── 방 만들기 ─────────────────────────────────────────────
 
-    /// <summary>방 생성. 랜덤 4자리 코드 반환.</summary>
-    public string CreateRoom(PlayerRole myRole)
+    /// <summary>방 생성. 캐릭터 타입 포함. 랜덤 4자리 코드 반환.</summary>
+    public string CreateRoom(PlayerRole myRole, CharacterType charType = CharacterType.None)
     {
-        string code = GenerateCode();
+        // charType이 None이면 역할에 맞는 기본값 사용
+        if (charType == CharacterType.None)
+            charType = myRole == PlayerRole.Parent ? CharacterType.Dad : CharacterType.Son;
+
+        string code  = GenerateCode();
         var session  = new RoomSession { roomCode = code, hostRole = myRole };
         _sessions[code] = session;
 
-        CurrentSession = session;
-        MyRole  = myRole;
-        IsHost  = true;
+        CurrentSession   = session;
+        MyRole           = myRole;
+        MyCharacterType  = charType;
+        IsHost           = true;
 
-        Debug.Log($"[RoomManager] 방 생성: {code} / 역할: {myRole}");
+        Debug.Log($"[RoomManager] 방 생성: {code} / 역할: {myRole} / 캐릭터: {charType}");
         OnRoomChanged?.Invoke();
         return code;
     }
