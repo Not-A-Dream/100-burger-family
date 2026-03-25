@@ -11,6 +11,14 @@ unity-game/[Uu]serSettings/
 unity-game/MemoryCaptures/
 unity-game/Recordings/
 
+# Unused imported asset packs (excluded from current release)
+unity-game/Assets/2D Casual UI/
+unity-game/Assets/2D Casual UI.meta
+unity-game/Assets/Belevich/
+unity-game/Assets/Belevich.meta
+unity-game/Assets/ExternalAssets/
+unity-game/Assets/ExternalAssets.meta
+unity-game/Assets/mcp-unity-main.meta
 
 # Recovery / autosave
 unity-game/Assets/_Recovery/
