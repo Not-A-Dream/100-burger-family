@@ -1,4 +1,6 @@
+# =========================
 # Unity generated
+# =========================
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -6,18 +8,76 @@
 [Bb]uilds/
 [Ll]ogs/
 [Uu]serSettings/
-
-# optional
 MemoryCaptures/
+Recordings/
 
-# IDE
+# Recovery / autosave
+Assets/_Recovery/
+
+# =========================
+# IDE / Editor
+# =========================
+.vs/
+.idea/
+.gradle/
+ExportedObj/
+.consulo/
+
+# Visual Studio / Rider / MonoDevelop
 *.csproj
+*.unityproj
 *.sln
+*.suo
+*.tmp
 *.user
 *.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
 
+# JetBrains Rider
+*.DotSettings.user
+
+# =========================
+# OS files
+# =========================
 .DS_Store
+Thumbs.db
+desktop.ini
 
-# 문서 (대용량 바이너리 — 원격 저장소 제외)
+# =========================
+# Local tools / assistant folders
+# =========================
+.claude/
+.cursor/
+.vscode/
+
+# =========================
+# Local archives / reports / exports
+# =========================
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
+# Generated analysis / temp outputs
+git_status.txt
+git_diff_stat.txt
+git_folder_summary.txt
+
+# =========================
+# Large documents / local-only files
+# =========================
 *.pdf
 *.PDF
+*.pptx
+*.PPTX
+*.docx
+*.DOCX
+*.xlsx
+*.XLSX
