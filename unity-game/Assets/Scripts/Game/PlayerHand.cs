@@ -1,37 +1,29 @@
 using UnityEngine;
-using TMPro;
 
 /// <summary>
-/// 플레이어가 손에 들고 있는 아이템을 관리.
+/// 플레이어가 손에 들고 있는 단일 슬롯 아이템 관리.
+/// string에서 IngredientType enum으로 변경해 타입 안전성을 확보.
 /// </summary>
 public class PlayerHand : MonoBehaviour
 {
-    public string heldItem = "";
+    public IngredientType heldItem = IngredientType.None;
 
-    public bool IsEmpty   => string.IsNullOrEmpty(heldItem);
-    public bool Has(string item) => heldItem == item;
+    public bool IsEmpty              => heldItem == IngredientType.None;
+    public bool Has(IngredientType t) => heldItem == t;
 
-    public void PickUp(string itemName)
+    public void PickUp(IngredientType type)
     {
-        heldItem = itemName;
-        Debug.Log($"[Hand] 집음: {itemName}");
+        heldItem = type;
+        Debug.Log($"[Hand] 집음: {IngredientNames.Korean(type)}");
     }
 
     public void Drop()
     {
-        Debug.Log($"[Hand] 내려놓음: {heldItem}");
-        heldItem = "";
+        Debug.Log($"[Hand] 내려놓음: {IngredientNames.Korean(heldItem)}");
+        heldItem = IngredientType.None;
     }
 
-    // 아이템 한국어 이름
+    /// <summary>HUD에 표시할 한국어 이름. 빈 손이면 빈 문자열 반환.</summary>
     public string DisplayName()
-    {
-        return heldItem switch
-        {
-            "Tomato"     => "토마토",
-            "Ingredient" => "재료",
-            "Burger"     => "버거",
-            _            => heldItem
-        };
-    }
+        => IsEmpty ? "" : IngredientNames.Korean(heldItem);
 }
