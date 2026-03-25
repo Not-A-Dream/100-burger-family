@@ -1,18 +1,19 @@
 # =========================
-# Unity generated
+# Unity project folder
 # =========================
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Uu]serSettings/
-MemoryCaptures/
-Recordings/
+unity-game/[Ll]ibrary/
+unity-game/[Tt]emp/
+unity-game/[Oo]bj/
+unity-game/[Bb]uild/
+unity-game/[Bb]uilds/
+unity-game/[Ll]ogs/
+unity-game/[Uu]serSettings/
+unity-game/MemoryCaptures/
+unity-game/Recordings/
+
 
 # Recovery / autosave
-Assets/_Recovery/
+unity-game/Assets/_Recovery/
 
 # =========================
 # IDE / Editor
@@ -20,8 +21,11 @@ Assets/_Recovery/
 .vs/
 .idea/
 .gradle/
-ExportedObj/
 .consulo/
+
+unity-game/.vs/
+unity-game/.idea/
+unity-game/.gradle/
 
 # Visual Studio / Rider / MonoDevelop
 *.csproj
@@ -71,7 +75,7 @@ git_diff_stat.txt
 git_folder_summary.txt
 
 # =========================
-# Large documents / local-only files
+# Local documents
 # =========================
 *.pdf
 *.PDF
@@ -81,3 +85,4 @@ git_folder_summary.txt
 *.DOCX
 *.xlsx
 *.XLSX
+
