@@ -2,6 +2,9 @@
 
 ## [0.5.0] - 2026-03-29
 
+![Architecture](../images/making_001.png)
+
+
 ### Added
 - **Kitchen Stations — Full Cooking Pipeline (5 Stations)**
   - `Refrigerator` — visual prop; stainless steel fridge placed against the left wall as a contextual anchor explaining ingredient supply
