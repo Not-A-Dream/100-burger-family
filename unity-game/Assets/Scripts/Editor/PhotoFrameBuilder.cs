@@ -40,14 +40,15 @@ public static class PhotoFrameBuilder
     // ── 배치 좌표 ─────────────────────────────────────────────────
     // 왜 Y=90°? LeftWall은 XZ 평면에서 X축 방향으로 뻗어 있음.
     //   액자가 방 안쪽을 향하려면 +X 방향을 정면으로 바라봐야 하므로 Y=90°.
-    static readonly Vector3 POS = new Vector3(-3.82f, 1.35f, 1.50f);
+    // 왜 Y=1.80? 높이 1.80 → 하단 Y=0.90, 상단 Y=2.70 — 서있는 플레이어 시야 정중앙
+    static readonly Vector3 POS = new Vector3(-3.82f, 1.80f, 1.50f);
     static readonly Vector3 ROT = new Vector3(0f, 90f, 0f);
 
-    // 액자 치수
-    const float FW = 0.80f; // 너비
-    const float FH = 0.60f; // 높이
-    const float FD = 0.05f; // 두께
-    const float BW = 0.055f; // 테두리 폭
+    // 액자 치수 (원본 × 3 → 면적 9배)
+    const float FW = 2.40f;  // 너비  (0.80 × 3)
+    const float FH = 1.80f;  // 높이  (0.60 × 3)
+    const float FD = 0.15f;  // 두께  (0.05 × 3)
+    const float BW = 0.165f; // 테두리 폭 (0.055 × 3)
 
     // ─────────────────────────────────────────────────────────────
     [MenuItem("Tools/100 Burger Family/Build Photo Frame")]
