@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.5.0] - 2026-03-29
+
+### Added
+- **Kitchen Stations — Full Cooking Pipeline (5 Stations)**
+  - `Refrigerator` — visual prop; stainless steel fridge placed against the left wall as a contextual anchor explaining ingredient supply
+  - `SupplyStation` (발주대) — traditional Hanok-style wooden order counter; [E] restocks Bread / RawPatty / RawBacon / Sauce (+3 each, 20 s cooldown)
+  - `GrillStation` (불판) — cast-iron grill with 3-layer flame visuals (red → orange → yellow) and overhead ventilation hood; [E] grills patty + bacon in 15 s, 8 s collect window before burn
+  - `CookStation` (조리대) — stainless-steel prep counter with Hanok lower frame; 5-stage burger assembly (Idle → Preparing → Assembling → AddSauce → Done)
+  - `ServeCounter` (서빙 카운터) — Hanok wood counter with serving window and mini burger display; [E] submits completed burger → `GameManager.ServeBurger()` → burger count +1
+
+- **Editor Automation**
+  - `KitchenStationsBuilder` — single `Tools/100 Burger Family/Build Kitchen Stations` menu item that places all 5 stations in one pass without touching farm objects; safe to re-run (destroys and rebuilds station GameObjects only)
+
+- **Complete Gameplay Loop**
+  - Full pipeline now playable end-to-end: Farm → Supply → Grill → Cook → Serve
+
+### Changed
+- `SampleScene.unity`
+  - Added Refrigerator, SupplyStation, GrillStation, CookStation, ServeCounter to `RoomScene`
+  - Manual position adjustments applied to farm objects (TomatoFarm, LettuceFarm, WateringJar, character-b) preserved from prior session
+
+### Notes
+- Font Atlas warning (`MalgunGothic SDF`) on station labels is cosmetic; does not affect gameplay
+- Refrigerator carries no script by design — `SupplyStation` handles all ingredient replenishment logic
+
+---
+
 ## [0.4.0] - 2026-03-25
 
 ### Added

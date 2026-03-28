@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.5.0] - 2026-03-29
+
+### 추가
+- **주방 스테이션 5종 — 전체 조리 파이프라인 완성**
+  - `Refrigerator` (냉장고) — 시각 소품. 스테인리스 냉장고를 왼쪽 벽에 배치해 재료 공급 맥락을 시각적으로 설명
+  - `SupplyStation` (발주대) — 한옥 전통 목재 주문 카운터. [E]로 빵·생패티·생베이컨·소스 각 +3 보충, 20초 쿨다운
+  - `GrillStation` (불판) — 주철 그릴 + 3층 화염 비주얼(빨강→주황→노랑) + 환기 후드. [E]로 굽기 시작, 15초 후 완료, 8초 내 수거 안 하면 탄 처리
+  - `CookStation` (조리대) — 스테인리스 상판 + 한옥 하부 구조. 5단계 버거 조립 (Idle → Preparing → Assembling → AddSauce → Done)
+  - `ServeCounter` (서빙 카운터) — 한옥 목재 카운터 + 서빙 창구 + 미니 버거 모형. [E]로 완성 버거 제출 → `GameManager.ServeBurger()` → 버거 카운트 +1
+
+- **에디터 자동화**
+  - `KitchenStationsBuilder` — `Tools/100 Burger Family/Build Kitchen Stations` 메뉴 한 번으로 5개 스테이션 일괄 배치. 팜 오브젝트 건드리지 않음, 재실행 안전
+
+- **전체 게임 루프 완성**
+  - 팜 → 발주대 → 불판 → 조리대 → 서빙까지 엔드투엔드 플레이 가능
+
+### 변경
+- `SampleScene.unity`
+  - RoomScene에 냉장고·발주대·불판·조리대·서빙 카운터 추가
+  - 이전 세션에서 수동 조정한 TomatoFarm·LettuceFarm·WateringJar·character-b 위치 유지
+
+### 참고
+- 스테이션 라벨 폰트 워닝(`MalgunGothic SDF`)은 시각적 문제이며 게임플레이에 영향 없음
+- 냉장고에 스크립트가 없는 것은 의도적 설계 — 재료 보충은 발주대(SupplyStation)가 전담
+
+---
+
 ## [0.4.0] - 2026-03-25
 
 ### Added
