@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -110,26 +111,33 @@ public class MainMenuController : MonoBehaviour
     //  캐릭터 선택 → 게임 진입
     // ══════════════════════════════════════════════════════════════
 
-    public void OnClick_SelectDad()      => EnterGame(CharacterType.Dad);
-    public void OnClick_SelectMom()      => EnterGame(CharacterType.Mom);
-    public void OnClick_SelectSon()      => EnterGame(CharacterType.Son);
-    public void OnClick_SelectDaughter() => EnterGame(CharacterType.Daughter);
+    public void OnClick_SelectDad()      => _ = EnterGameAsync(CharacterType.Dad);
+    public void OnClick_SelectMom()      => _ = EnterGameAsync(CharacterType.Mom);
+    public void OnClick_SelectSon()      => _ = EnterGameAsync(CharacterType.Son);
+    public void OnClick_SelectDaughter() => _ = EnterGameAsync(CharacterType.Daughter);
 
     // 기존 버튼 호환 (Inspector 연결이 그대로인 경우)
-    public void OnClick_RoleParent() => EnterGame(CharacterType.Dad);
-    public void OnClick_RoleChild()  => EnterGame(CharacterType.Son);
+    public void OnClick_RoleParent() => _ = EnterGameAsync(CharacterType.Dad);
+    public void OnClick_RoleChild()  => _ = EnterGameAsync(CharacterType.Son);
 
     // ══════════════════════════════════════════════════════════════
     //  방 참여 (기존 유지 — 향후 멀티 플레이용)
     // ══════════════════════════════════════════════════════════════
 
-    public void OnClick_JoinConfirm()
+    public void OnClick_JoinConfirm() => _ = JoinConfirmAsync();
+
+    async Task JoinConfirmAsync()
     {
-        string code = joinCodeInput != null ? joinCodeInput.text : "";
-        if (RoomManager.I.JoinRoom(code))
+        string code = joinCodeInput != null ? joinCodeInput.text.Trim() : "";
+        if (string.IsNullOrEmpty(code)) return;
+
+        if (joinErrorText) joinErrorText.text = "연결 중...";
+
+        bool ok = await RoomManager.I.JoinRoomAsync(code);
+        if (ok)
         {
             HideAllSubPanels();
-            GetScreenController()?.ShowInGame();
+            GetScreenController()?.ShowLobby();
         }
         else
         {
@@ -144,27 +152,27 @@ public class MainMenuController : MonoBehaviour
     //  내부
     // ══════════════════════════════════════════════════════════════
 
-    void EnterGame(CharacterType charType)
+    // ── 캐릭터 선택 → 방 생성 → 로비 화면 ────────────────────
+    //
+    //  이전: CreateRoom() (동기) → 바로 ShowInGame()
+    //  이후: CreateRoomAsync() (비동기) → 방 코드 받은 후 ShowLobby()
+    //        상대방이 입장하면 LobbyController에서 시작 버튼 활성화
+    //
+    async Task EnterGameAsync(CharacterType charType)
     {
-        var role = CharacterData.GetRole(charType);
-        RoomManager.I.CreateRoom(role, charType);
-
-        // ── PlayerVisual 즉시 업데이트 ──────────────────────────
-        //
-        //  PlayerVisual.Start()는 씬 시작 시 딱 한 번만 실행됨.
-        //  이후에 다른 캐릭터를 선택해도 Start()는 재실행되지 않아
-        //  기존 비주얼이 그대로 남아 있음.
-        //
-        //  → EnterGame() 시마다 BuildVisual()을 직접 호출해
-        //    RoomManager에 방금 저장된 charType으로 즉시 재생성.
-        //
-        var pv = FindFirstObjectByType<PlayerVisual>();
-        if (pv != null)
-            pv.BuildVisual(charType);
-
         HideAllSubPanels();
+
+        var role = CharacterData.GetRole(charType);
+        string code = await RoomManager.I.CreateRoomAsync(role, charType);
+        if (string.IsNullOrEmpty(code))
+            return; // 에러는 RoomManager.OnError로 전달됨
+
+        // PlayerVisual 즉시 업데이트
+        var pv = FindFirstObjectByType<PlayerVisual>();
+        if (pv != null) pv.BuildVisual(charType);
+
         GameManager.I?.state.Reset();
-        GetScreenController()?.ShowInGame();
+        GetScreenController()?.ShowLobby();
     }
 
     void HideAllSubPanels()

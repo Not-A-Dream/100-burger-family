@@ -34,7 +34,7 @@ public class DebugController : MonoBehaviour
         }
         var s = rm.CurrentSession;
         statusText.text =
-            $"코드: {s.roomCode}\n" +
+            $"코드: {s.lobbyCode}\n" +
             $"호스트 역할: {s.hostRole}\n" +
             $"게스트 입장: {(s.guestJoined ? "Y" : "N")}\n" +
             $"내 역할: {rm.MyRole}\n" +
