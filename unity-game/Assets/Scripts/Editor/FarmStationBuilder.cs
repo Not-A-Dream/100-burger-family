@@ -138,7 +138,7 @@ public static class FarmStationBuilder
         farm.cropType        = cropType;
         farm.seedToWaterTime = 10f;
         farm.growTime        = 10f;
-        go.AddComponent<InteractionBubble>();
+        go.AddComponent<FarmInteractionBubble>();
 
         EditorUtility.SetDirty(go);
     }

@@ -17,8 +17,8 @@ using UnityEngine.SceneManagement;
 ///   발주대  — 한옥 전통 목재 카운터 (소나무/참나무 계열)
 ///   냉장고  — 현대 스테인리스 + 흰색 (한옥 속 현대 가전)
 ///   불판    — 주철 그릴 + 화염 + 후드 (검정/주황/회색)
-///   조리대  — 스테인리스 상판 + 한옥 하부 (밝은 회색/참나무)
-///   서빙대  — 한옥 목재 카운터 + 단청 포인트 + 서빙 창구
+///   조리대  — 돌 상판 + 가마솥 + 창호 격자 + 아궁이 (완전 한옥 정지 테마)
+///   서빙대  — 소나무 기둥 + 창호지 창구 + 황동 종 + 한지 명패 (한옥 주막 테마)
 ///
 /// 색상 팔레트 (FarmStationBuilder 와 공유):
 ///   소나무  #BF8B47   참나무  #80521F   대들보  #402809
@@ -408,17 +408,17 @@ public static class KitchenStationsBuilder
     }
 
     // ═════════════════════════════════════════════════════════════
-    //  4. 조리대 (CookStation)
+    //  4. 조리대 (CookStation) — 한옥 정지(廚) 테마
     //
-    //   스테인리스 상판 + 한옥 하부 구조.
+    //   돌 상판 + 참나무 하부 + 가마솥 + 창호 격자 앞면.
     //   [E] → 재료 확인 → 자동 5초(준비) → 자동 8초(조립) → [E] 소스 → [E] 완성
     //
-    //   ┌────────────────────────────┐  ← 스테인리스 상판 + 테두리
-    //   │  [도마]  [재료볼] [재료볼] │  ← 상판 소품
-    //   ├──────┬─────────────────────┤  ← 단청 수직 구분선
-    //   │      │                     │  ← 참나무 본체
-    //   │[──]  │  [─────] [──────]   │  ← 서랍 손잡이
-    //   └──────┴─────────────────────┘
+    //   ┌────────────────────────────┐  ← 회색 돌 상판 (단청 테두리)
+    //   │  [도마] [가마솥] [옹기볼] │  ← 상판 소품
+    //   │  ─┬──┬─ 창호 격자살 ─┬──┬─  │  ← 앞면 창호 패턴
+    //   │   │  │               │  │   │  ← 참나무 본체
+    //   │  아궁이 구멍 (단청테)  │   │
+    //   └───────────────────────────┘
     //   ████                      ████
     // ═════════════════════════════════════════════════════════════
     static void BuildCookStation(Transform parent)
@@ -428,24 +428,30 @@ public static class KitchenStationsBuilder
         go.transform.localPosition = POS_COOK;
 
         const float CW = 1.30f, CD = 0.70f, TOP_Y = 0.88f;
+        var C_STONE = new Color(0.48f, 0.44f, 0.39f); // 회색 돌 상판
+        var C_IRON2 = new Color(0.10f, 0.10f, 0.10f); // 가마솥 무쇠
+        var C_CLAY  = new Color(0.55f, 0.30f, 0.16f); // 옹기 점토
 
         var col = go.AddComponent<BoxCollider>();
         col.size   = new Vector3(CW, 0.95f, CD);
         col.center = new Vector3(0f, 0.475f, 0f);
 
-        // ── 스테인리스 상판 ──────────────────────────────────────
+        // ── 돌 상판 (회색 자연석 — 한옥 정지의 돌화덕 느낌) ────────
+        // 왜 돌? 전통 부엌은 항아리·솥을 올리는 돌 위판이 기본.
+        //        스테인리스는 현대적이라 한옥 분위기를 해침.
         SubBox(go.transform, "Top",
-            new Vector3(0f, TOP_Y, 0f), new Vector3(CW, 0.062f, CD), C_STEEL);
-        // 테두리 (앞/좌/우 3면)
+            new Vector3(0f, TOP_Y, 0f), new Vector3(CW, 0.065f, CD), C_STONE);
+        // 단청 앞 테두리 (목재 테두리 포인트)
         SubBox(go.transform, "Edge_F",
-            new Vector3(0f, TOP_Y - 0.02f, -(CD*0.5f + 0.012f)),
-            new Vector3(CW, 0.062f, 0.022f), C_STEEL_DRK);
+            new Vector3(0f, TOP_Y - 0.01f, -(CD*0.5f + 0.012f)),
+            new Vector3(CW, 0.065f, 0.022f), C_DANCHEONG);
+        // 좌우 테두리 (대들보 어두운 나무)
         SubBox(go.transform, "Edge_L",
-            new Vector3(-(CW*0.5f + 0.012f), TOP_Y - 0.02f, 0f),
-            new Vector3(0.022f, 0.062f, CD), C_STEEL_DRK);
+            new Vector3(-(CW*0.5f + 0.012f), TOP_Y - 0.01f, 0f),
+            new Vector3(0.022f, 0.065f, CD), C_BEAM);
         SubBox(go.transform, "Edge_R",
-            new Vector3(  CW*0.5f + 0.012f,  TOP_Y - 0.02f, 0f),
-            new Vector3(0.022f, 0.062f, CD), C_STEEL_DRK);
+            new Vector3(  CW*0.5f + 0.012f,  TOP_Y - 0.01f, 0f),
+            new Vector3(0.022f, 0.065f, CD), C_BEAM);
 
         // ── 본체 (참나무) ────────────────────────────────────────
         SubBox(go.transform, "Body",
@@ -453,21 +459,31 @@ public static class KitchenStationsBuilder
         SubBox(go.transform, "Front",
             new Vector3(0f, 0.43f, -(CD*0.5f - 0.012f)),
             new Vector3(CW - 0.08f, 0.79f, 0.04f), C_PINE);
-        // 단청 수직 구분선 (한옥 창살 패턴 암시)
-        SubBox(go.transform, "Div_V",
-            new Vector3(0.08f, 0.43f, -(CD*0.5f)),
-            new Vector3(0.025f, 0.79f, 0.02f), C_DANCHEONG);
 
-        // ── 서랍 손잡이 ─────────────────────────────────────────
-        SubBox(go.transform, "Handle_L",
-            new Vector3(-0.45f, 0.52f, -(CD*0.5f + 0.03f)),
-            new Vector3(0.22f, 0.032f, 0.04f), C_STEEL_DRK);
-        SubBox(go.transform, "Handle_RM",
-            new Vector3( 0.32f, 0.68f, -(CD*0.5f + 0.03f)),
-            new Vector3(0.20f, 0.032f, 0.04f), C_STEEL_DRK);
-        SubBox(go.transform, "Handle_RB",
-            new Vector3( 0.32f, 0.42f, -(CD*0.5f + 0.03f)),
-            new Vector3(0.20f, 0.032f, 0.04f), C_STEEL_DRK);
+        // ── 창호 격자살 (앞면 — 한옥 창호지 창살 패턴) ─────────────
+        // 왜 격자살? 한옥 가구는 창호지 창살로 면을 나누는 것이 특징.
+        //           냉장고·서랍장과 달리 전통적인 목재 질감 강조.
+        float[] slatX = { -0.42f, -0.14f, 0.14f, 0.42f };
+        foreach (float sx in slatX)
+            SubBox(go.transform, "Slat_V",
+                new Vector3(sx, 0.43f, -(CD*0.5f)),
+                new Vector3(0.025f, 0.75f, 0.022f), C_BEAM);
+        // 가로 격자살 (중단 1개)
+        SubBox(go.transform, "Slat_H",
+            new Vector3(0f, 0.54f, -(CD*0.5f)),
+            new Vector3(CW - 0.10f, 0.025f, 0.022f), C_BEAM);
+
+        // ── 아궁이 구멍 (앞면 하단 왼쪽 — 전통 화덕 느낌) ──────────
+        // 왜 아궁이? 가마솥이 올라가 있는 이유를 시각적으로 설명.
+        SubBox(go.transform, "Hearth_Frame",
+            new Vector3(-0.38f, 0.22f, -(CD*0.5f + 0.01f)),
+            new Vector3(0.32f, 0.22f, 0.04f), C_BEAM);
+        SubBox(go.transform, "Hearth_Fire",
+            new Vector3(-0.38f, 0.21f, -(CD*0.5f + 0.02f)),
+            new Vector3(0.22f, 0.14f, 0.03f), new Color(1.00f, 0.40f, 0.05f));
+        SubBox(go.transform, "Hearth_Ember",
+            new Vector3(-0.38f, 0.15f, -(CD*0.5f + 0.02f)),
+            new Vector3(0.16f, 0.05f, 0.025f), new Color(0.80f, 0.18f, 0.02f));
 
         // ── 다리 4개 ─────────────────────────────────────────────
         float lx = CW*0.5f - 0.06f, lz = CD*0.5f - 0.06f;
@@ -476,30 +492,58 @@ public static class KitchenStationsBuilder
         SubBox(go.transform, "Leg_BL", new Vector3(-lx, 0.04f,  lz), new Vector3(0.08f, 0.08f, 0.08f), C_BEAM);
         SubBox(go.transform, "Leg_BR", new Vector3( lx, 0.04f,  lz), new Vector3(0.08f, 0.08f, 0.08f), C_BEAM);
 
-        // ── 상판 소품 ────────────────────────────────────────────
-        // 도마 (나무색 사각형)
+        // ── 가마솥 (무쇠 솥 — 아궁이 위에 올려진 전통 부엌 상징) ────
+        // Sphere: local radius 0.5 → 시각 반지름 = scale*0.5
+        SubSph(go.transform, "Cauldron_Body",
+            new Vector3(-0.32f, TOP_Y + 0.12f, 0.02f),
+            new Vector3(0.36f, 0.24f, 0.32f), C_IRON2);
+        SubCyl(go.transform, "Cauldron_Rim",
+            new Vector3(-0.32f, TOP_Y + 0.20f, 0.02f),
+            new Vector3(0.34f, 0.020f, 0.34f), new Color(0.22f, 0.22f, 0.22f));
+        SubSph(go.transform, "Cauldron_Lid",
+            new Vector3(-0.32f, TOP_Y + 0.25f, 0.02f),
+            new Vector3(0.30f, 0.12f, 0.28f), new Color(0.18f, 0.18f, 0.18f));
+        SubCyl(go.transform, "Cauldron_Knob",
+            new Vector3(-0.32f, TOP_Y + 0.34f, 0.02f),
+            new Vector3(0.036f, 0.050f, 0.036f), new Color(0.22f, 0.22f, 0.22f));
+        // 김 (솥에서 올라오는 연기 느낌)
+        SubSph(go.transform, "Steam1",
+            new Vector3(-0.32f, TOP_Y + 0.44f, 0.02f),
+            new Vector3(0.09f, 0.07f, 0.09f), new Color(0.92f, 0.92f, 0.92f));
+        SubSph(go.transform, "Steam2",
+            new Vector3(-0.24f, TOP_Y + 0.50f, 0.06f),
+            new Vector3(0.06f, 0.05f, 0.06f), new Color(0.94f, 0.94f, 0.94f));
+
+        // ── 도마 (나무색 사각형) ─────────────────────────────────
         SubBox(go.transform, "CutBoard",
-            new Vector3(-0.30f, TOP_Y + 0.025f, 0.06f),
-            new Vector3(0.46f, 0.022f, 0.33f), new Color(0.78f, 0.62f, 0.38f));
-        // 재료 볼 2개 (스테인리스 납작 원통)
-        SubCyl(go.transform, "Bowl_L",
-            new Vector3(0.28f, TOP_Y + 0.06f, 0.10f),
-            new Vector3(0.19f, 0.03f, 0.19f), C_STEEL);
-        SubCyl(go.transform, "Bowl_R",
-            new Vector3(0.50f, TOP_Y + 0.055f, 0.10f),
-            new Vector3(0.13f, 0.025f, 0.13f), C_STEEL);
+            new Vector3(0.22f, TOP_Y + 0.025f, 0.06f),
+            new Vector3(0.52f, 0.022f, 0.40f), new Color(0.78f, 0.62f, 0.38f));
         // 도마 위 재료 표시 (빵/양상추/토마토)
         SubBox(go.transform, "Ing_Bun",
-            new Vector3(-0.42f, TOP_Y + 0.055f, 0.02f),
+            new Vector3(0.08f, TOP_Y + 0.055f, 0.02f),
             new Vector3(0.09f, 0.050f, 0.09f), new Color(0.95f, 0.85f, 0.60f));
         SubBox(go.transform, "Ing_Let",
-            new Vector3(-0.25f, TOP_Y + 0.050f, 0.02f),
+            new Vector3(0.24f, TOP_Y + 0.050f, 0.02f),
             new Vector3(0.09f, 0.040f, 0.09f), new Color(0.22f, 0.72f, 0.18f));
         SubBox(go.transform, "Ing_Tom",
-            new Vector3(-0.08f, TOP_Y + 0.055f, 0.02f),
+            new Vector3(0.40f, TOP_Y + 0.055f, 0.02f),
             new Vector3(0.07f, 0.068f, 0.07f), new Color(0.88f, 0.18f, 0.10f));
 
-        BuildLabel(go.transform, "조리대", TOP_Y + 0.55f);
+        // ── 옹기 그릇 (점토 — 전통 재료 담는 그릇) ─────────────────
+        SubCyl(go.transform, "Bowl_Clay_L",
+            new Vector3(0.44f, TOP_Y + 0.065f, 0.22f),
+            new Vector3(0.17f, 0.032f, 0.17f), C_CLAY);
+        SubCyl(go.transform, "Bowl_Clay_R",
+            new Vector3(0.56f, TOP_Y + 0.055f, 0.22f),
+            new Vector3(0.11f, 0.026f, 0.11f), C_CLAY * 0.85f);
+
+        // ── 대나무 주걱 ─────────────────────────────────────────
+        var C_BAMBOO2 = new Color(0.68f, 0.60f, 0.25f);
+        SubBox(go.transform, "Spatula",
+            new Vector3(0.56f, TOP_Y + 0.055f, -0.10f),
+            new Vector3(0.032f, 0.030f, 0.38f), C_BAMBOO2);
+
+        BuildLabel(go.transform, "조리대", TOP_Y + 0.70f);
 
         var cs = go.AddComponent<CookStation>();
         cs.prepareTime  = 5f;
@@ -509,17 +553,19 @@ public static class KitchenStationsBuilder
     }
 
     // ═════════════════════════════════════════════════════════════
-    //  5. 서빙 카운터 (ServeCounter)
+    //  5. 서빙 카운터 (ServeCounter) — 한옥 주막 창구 테마
     //
     //   완성 버거를 들고 [E] → 버거 카운트 +1.
-    //   한옥 카운터 + 서빙 창구 + 주문 번호 디스플레이.
+    //   소나무 기둥 + 창호지 창구 + 황동 종 + 한지 명패.
     //
-    //                  ╔══════════╗
-    //                  ║  🍔      ║  ← 서빙 창구 (뒷면 상단)
-    //   ┌──────────────╚══════════╝──┐  ← 밝은 나무 상판
-    //   │  [버거 모형]   [디스플레이] │  ← 상판 소품
-    //   ├────────────────────────────┤  ← 단청 상단 몰딩
-    //   │           서빙 카운터      │  ← 참나무 본체
+    //       ↑ 소나무 기둥 2개 + 상단 대들보
+    //   ┌────╔══════════╗────┐  ← 창호지 창구 (뒷면 상단)
+    //   │    ║ 격자+한지 ║    │     격자살 + 배경 창호지
+    //   └────╚══════════╝────┘  ← 참나무 상판 (단청 테두리)
+    //   │  [버거쟁반]  🔔[황동종]  │  ← 상판 소품
+    //   │  [한지 명패 — 100 Burger] │
+    //   ├────────────────────────────┤  ← 단청 몰딩
+    //   │       참나무 본체          │
     //   └────────────────────────────┘
     //   ████                      ████
     // ═════════════════════════════════════════════════════════════
@@ -530,19 +576,23 @@ public static class KitchenStationsBuilder
         go.transform.localPosition = POS_SERVE;
 
         const float SW = 1.20f, SD = 0.65f, TOP_Y = 0.90f;
+        var C_SHOJI = new Color(0.97f, 0.95f, 0.88f); // 창호지 흰색
+        var C_BELL  = new Color(0.78f, 0.65f, 0.20f); // 황동 종
+        var C_CLAY2 = new Color(0.55f, 0.30f, 0.16f); // 점토 쟁반
 
         var col = go.AddComponent<BoxCollider>();
         col.size   = new Vector3(SW, 1.0f, SD);
         col.center = new Vector3(0f, 0.50f, 0f);
 
-        // ── 상판 (밝은 나무) ─────────────────────────────────────
+        // ── 상판 (참나무 — 밝은 소나무색) ───────────────────────────
         SubBox(go.transform, "Top",
             new Vector3(0f, TOP_Y, 0f), new Vector3(SW, 0.065f, SD), C_SERVE);
+        // 단청 앞 테두리
         SubBox(go.transform, "TopEdge_F",
             new Vector3(0f, TOP_Y - 0.01f, -(SD*0.5f + 0.01f)),
             new Vector3(SW, 0.065f, 0.025f), C_DANCHEONG);
 
-        // ── 본체 ─────────────────────────────────────────────────
+        // ── 본체 (참나무 + 창호 앞면) ────────────────────────────────
         SubBox(go.transform, "Body",
             new Vector3(0f, 0.44f, 0f), new Vector3(SW - 0.04f, 0.84f, SD - 0.04f), C_OAK);
         SubBox(go.transform, "Front",
@@ -552,24 +602,72 @@ public static class KitchenStationsBuilder
         SubBox(go.transform, "Molding",
             new Vector3(0f, TOP_Y - 0.10f, -(SD*0.5f)),
             new Vector3(SW - 0.04f, 0.04f, 0.022f), C_DANCHEONG);
+        // 앞면 창호 세로 격자살 (주막 카운터 목재 질감)
+        float[] fSlatX = { -0.42f, -0.14f, 0.14f, 0.42f };
+        foreach (float sx in fSlatX)
+            SubBox(go.transform, "Front_Slat",
+                new Vector3(sx, 0.44f, -(SD*0.5f)),
+                new Vector3(0.025f, 0.78f, 0.022f), C_BEAM);
 
-        // ── 서빙 창구 (뒷면 상단) ───────────────────────────────
-        // 왜 뒷면? 서빙은 반대편(손님 쪽)으로 내미는 구조
-        float wW = 0.54f, wH = 0.34f;
-        float wCY = TOP_Y + wH * 0.5f + 0.02f;
-        // 창구 좌우 기둥 + 상단 보
-        SubBox(go.transform, "Win_L",
-            new Vector3(-(wW*0.5f + 0.04f), wCY, SD*0.5f + 0.01f),
-            new Vector3(0.06f, wH + 0.09f, 0.04f), C_OAK);
-        SubBox(go.transform, "Win_R",
-            new Vector3(  wW*0.5f + 0.04f,  wCY, SD*0.5f + 0.01f),
-            new Vector3(0.06f, wH + 0.09f, 0.04f), C_OAK);
-        SubBox(go.transform, "Win_Top",
-            new Vector3(0f, wCY + wH*0.5f, SD*0.5f + 0.01f),
-            new Vector3(wW + 0.16f, 0.062f, 0.04f), C_BEAM);
-        SubBox(go.transform, "Win_Sill",
-            new Vector3(0f, TOP_Y + 0.032f, SD*0.5f + 0.05f),
-            new Vector3(wW + 0.16f, 0.04f, 0.09f), C_PINE);
+        // ── 소나무 기둥 2개 (주막 창구 느낌) ────────────────────────
+        // 왜 기둥? 전통 한옥 주막·음식점은 반드시 앞기둥이 있음.
+        //          기둥이 창구 위 처마를 지지하는 구조 역할.
+        float poleH = TOP_Y + 0.78f;
+        SubBox(go.transform, "Pole_L",
+            new Vector3(-(SW*0.5f + 0.05f), poleH * 0.5f, 0f),
+            new Vector3(0.08f, poleH, 0.08f), C_PINE);
+        SubBox(go.transform, "Pole_R",
+            new Vector3(  SW*0.5f + 0.05f,  poleH * 0.5f, 0f),
+            new Vector3(0.08f, poleH, 0.08f), C_PINE);
+        // 기둥 주두 (柱頭) 장식
+        foreach (float px in new[] { -(SW*0.5f + 0.05f), SW*0.5f + 0.05f })
+            SubBox(go.transform, "PillarCap",
+                new Vector3(px, poleH, 0f),
+                new Vector3(0.14f, 0.055f, 0.14f), C_BEAM);
+        // 상단 대들보 (기둥 사이)
+        SubBox(go.transform, "TopBeam",
+            new Vector3(0f, poleH + 0.038f, 0f),
+            new Vector3(SW + 0.28f, 0.07f, 0.12f), C_BEAM);
+
+        // ── 서빙 창구 — 창호지 뒷판 (뒷면 상단) ─────────────────────
+        // 왜 창호지? 서빙 창구를 통해 보이는 뒷벽이 창호지 격자여야
+        //           한옥 주막/밥집 느낌이 완성됨.
+        float wW = 0.52f, wH = 0.62f;
+        float wCY = TOP_Y + wH * 0.5f + 0.04f;
+        float wZ  = SD * 0.5f + 0.01f;
+
+        // 창호지 배경
+        SubBox(go.transform, "Win_Shoji",
+            new Vector3(0f, wCY, wZ),
+            new Vector3(wW, wH, 0.03f), C_SHOJI);
+        // 창호 세로 격자살 3개
+        float[] wSlatX = { -0.16f, 0f, 0.16f };
+        foreach (float wx in wSlatX)
+            SubBox(go.transform, "Win_Slat_V",
+                new Vector3(wx, wCY, wZ + 0.015f),
+                new Vector3(0.025f, wH - 0.04f, 0.03f), C_BEAM);
+        // 창호 가로 격자살 2개
+        foreach (float wy in new[] { wCY - wH*0.22f, wCY + wH*0.22f })
+            SubBox(go.transform, "Win_Slat_H",
+                new Vector3(0f, wy, wZ + 0.015f),
+                new Vector3(wW - 0.04f, 0.025f, 0.03f), C_BEAM);
+        // 창구 틀 4면
+        SubBox(go.transform, "Win_Frame_T",
+            new Vector3(0f, wCY + wH*0.5f + 0.02f, wZ + 0.015f),
+            new Vector3(wW + 0.10f, 0.055f, 0.035f), C_BEAM);
+        SubBox(go.transform, "Win_Frame_B",
+            new Vector3(0f, TOP_Y + 0.032f, wZ + 0.04f),
+            new Vector3(wW + 0.10f, 0.040f, 0.08f), C_PINE);
+        SubBox(go.transform, "Win_Frame_L",
+            new Vector3(-(wW*0.5f + 0.045f), wCY, wZ + 0.015f),
+            new Vector3(0.05f, wH + 0.06f, 0.035f), C_BEAM);
+        SubBox(go.transform, "Win_Frame_R",
+            new Vector3(  wW*0.5f + 0.045f,  wCY, wZ + 0.015f),
+            new Vector3(0.05f, wH + 0.06f, 0.035f), C_BEAM);
+        // 한지 조명 (창구 하단)
+        SubBox(go.transform, "Win_HanjiLED",
+            new Vector3(0f, TOP_Y + 0.02f, wZ - 0.02f),
+            new Vector3(wW - 0.10f, 0.018f, 0.10f), C_HANJI);
 
         // ── 다리 4개 ─────────────────────────────────────────────
         float lx = SW*0.5f - 0.06f, lz = SD*0.5f - 0.06f;
@@ -579,29 +677,60 @@ public static class KitchenStationsBuilder
         SubBox(go.transform, "Leg_BR", new Vector3( lx, 0.04f,  lz), new Vector3(0.09f, 0.08f, 0.09f), C_BEAM);
 
         // ── 상판 소품 ────────────────────────────────────────────
-        // 미니 버거 모형 (완성된 버거를 표시)
+
+        // 나무 쟁반 (소반 — 낮은 한옥 밥상 느낌)
+        SubCyl(go.transform, "Tray",
+            new Vector3(-0.22f, TOP_Y + 0.030f, 0.05f),
+            new Vector3(0.44f, 0.022f, 0.44f), C_CLAY2);
+        SubCyl(go.transform, "Tray_Rim",
+            new Vector3(-0.22f, TOP_Y + 0.038f, 0.05f),
+            new Vector3(0.46f, 0.006f, 0.46f), C_OAK);
+
+        // 미니 버거 (쟁반 위)
         SubBox(go.transform, "Burg_BotBun",
-            new Vector3(-0.22f, TOP_Y + 0.040f, 0.00f),
-            new Vector3(0.17f, 0.055f, 0.17f), new Color(0.90f, 0.72f, 0.38f));
+            new Vector3(-0.22f, TOP_Y + 0.055f, 0.05f),
+            new Vector3(0.17f, 0.050f, 0.17f), new Color(0.90f, 0.72f, 0.38f));
         SubBox(go.transform, "Burg_Patty",
-            new Vector3(-0.22f, TOP_Y + 0.090f, 0.00f),
+            new Vector3(-0.22f, TOP_Y + 0.095f, 0.05f),
             new Vector3(0.16f, 0.038f, 0.16f), new Color(0.40f, 0.22f, 0.08f));
         SubBox(go.transform, "Burg_Let",
-            new Vector3(-0.22f, TOP_Y + 0.124f, 0.00f),
-            new Vector3(0.18f, 0.022f, 0.18f), new Color(0.25f, 0.70f, 0.20f));
-        SubBox(go.transform, "Burg_TopBun",
-            new Vector3(-0.22f, TOP_Y + 0.162f, 0.00f),
-            new Vector3(0.17f, 0.090f, 0.17f), new Color(0.95f, 0.80f, 0.46f));
+            new Vector3(-0.22f, TOP_Y + 0.128f, 0.05f),
+            new Vector3(0.18f, 0.020f, 0.18f), new Color(0.25f, 0.70f, 0.20f));
+        SubSph(go.transform, "Burg_TopBun",
+            new Vector3(-0.22f, TOP_Y + 0.175f, 0.05f),
+            new Vector3(0.17f, 0.14f, 0.17f), new Color(0.95f, 0.80f, 0.46f));
 
-        // 주문 번호 디스플레이 (녹색 LED 패널)
-        SubBox(go.transform, "Display",
-            new Vector3(0.36f, TOP_Y + 0.16f, -(SD*0.5f + 0.02f)),
-            new Vector3(0.18f, 0.20f, 0.03f), new Color(0.10f, 0.14f, 0.20f));
-        SubBox(go.transform, "Display_Glow",
-            new Vector3(0.36f, TOP_Y + 0.16f, -(SD*0.5f + 0.03f)),
-            new Vector3(0.13f, 0.14f, 0.01f), new Color(0.22f, 0.78f, 0.34f));
+        // ── 황동 서빙 종 — "딩동!" ───────────────────────────────────
+        // 왜 황동 종? 전통 주막/주점에서 주문 완료를 알리는 종.
+        //             현대 LED 디스플레이 대신 전통 방식으로 대체.
+        SubCyl(go.transform, "Bell_Base",
+            new Vector3(0.36f, TOP_Y + 0.022f, -0.02f),
+            new Vector3(0.10f, 0.016f, 0.10f), C_BEAM);
+        SubCyl(go.transform, "Bell_Body",
+            new Vector3(0.36f, TOP_Y + 0.085f, -0.02f),
+            new Vector3(0.088f, 0.055f, 0.088f), C_BELL);
+        SubSph(go.transform, "Bell_Dome",
+            new Vector3(0.36f, TOP_Y + 0.155f, -0.02f),
+            new Vector3(0.072f, 0.065f, 0.072f), C_BELL * 0.90f);
+        SubCyl(go.transform, "Bell_Handle",
+            new Vector3(0.36f, TOP_Y + 0.210f, -0.02f),
+            new Vector3(0.022f, 0.028f, 0.022f), C_BEAM);
 
-        BuildLabel(go.transform, "서빙 카운터", TOP_Y + 0.60f);
+        // ── 한지 명패 (LED 대신 — "100 버거 서빙대") ─────────────────
+        // 왜 한지 명패? LED 디스플레이는 현대 기기이므로 한옥 분위기에
+        //              어울리지 않음. 전통 목패(木牌)에 붓글씨 느낌으로.
+        SubBox(go.transform, "Nameplate_Frame",
+            new Vector3(0.36f, TOP_Y + 0.065f, -(SD*0.5f + 0.022f)),
+            new Vector3(0.26f, 0.16f, 0.03f), C_BEAM);
+        SubBox(go.transform, "Nameplate_Paper",
+            new Vector3(0.36f, TOP_Y + 0.065f, -(SD*0.5f + 0.035f)),
+            new Vector3(0.20f, 0.11f, 0.015f), new Color(0.97f, 0.95f, 0.88f));
+        // 명패 빨간 점 (낙관 — 전통 서명 도장)
+        SubBox(go.transform, "Nameplate_Seal",
+            new Vector3(0.44f, TOP_Y + 0.040f, -(SD*0.5f + 0.038f)),
+            new Vector3(0.035f, 0.035f, 0.012f), C_DANCHEONG);
+
+        BuildLabel(go.transform, "서빙 카운터", TOP_Y + 0.85f);
 
         go.AddComponent<ServeCounter>();
         go.AddComponent<InteractionBubble>();
