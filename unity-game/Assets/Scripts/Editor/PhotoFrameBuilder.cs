@@ -186,6 +186,36 @@ public static class PhotoFrameBuilder
             new Vector3(0f, -FH * 0.5f - 0.028f, -FD * 0.95f),
             new Vector3(0.035f, 0.035f, 0.025f), C_PINE);
 
+        // ── 액자 스포트라이트 ─────────────────────────────────────
+        // 왜 스포트라이트?
+        //   한옥 전시 공간에서 그림/사진 위에 집중 조명을 비추는 것은
+        //   관람자의 시선을 자연스럽게 끄는 연출 기법.
+        //   박물관·카페의 액자 조명과 동일한 원리.
+        //
+        // 배치 원리 (등각뷰):
+        //   액자 중심: (-3.82, 1.80, 1.50)
+        //   조명 위치: (-2.60, 3.20, 1.50) — 방 안쪽 위에서 비스듬히 비춤
+        //   LookAt으로 액자 중심을 정확히 겨냥.
+        //
+        //          y=3.20 💡 ← 조명 (방 안쪽, x=-2.60)
+        //                 ↘
+        //   LeftWall      🖼 ← 액자 중심 (x=-3.82, y=1.80)
+        var lightGo = new GameObject("PhotoSpotLight");
+        lightGo.transform.SetParent(go.transform, false);
+        // 로컬 좌표: 액자 기준 (Y=90° 회전된 상태)
+        //   액자 로컬에서 +Z = 방 안쪽(+X), +Y = 위
+        //   위에서 비스듬히: Z=+1.22 (방 안쪽), Y=+1.40 (위)
+        lightGo.transform.localPosition = new Vector3(0f, 1.40f, 1.22f);
+        lightGo.transform.LookAt(go.transform.position); // 액자 중심 정조준
+
+        var light = lightGo.AddComponent<Light>();
+        light.type      = LightType.Spot;
+        light.color     = new Color(1.00f, 0.93f, 0.78f); // 따뜻한 백열색
+        light.intensity = 1.2f;   // 연한 강도 — 분위기 조명
+        light.range     = 4.5f;   // 액자까지 충분히 닿는 범위
+        light.spotAngle = 38f;    // 액자(2.4×1.8) 를 딱 감싸는 각도
+        light.shadows   = LightShadows.None; // WebGL 성능 우선
+
         // ── 스크립트 연결 ─────────────────────────────────────────
         var pf = go.AddComponent<PhotoFrame>();
         pf.photoRenderer = canvas.GetComponent<Renderer>();

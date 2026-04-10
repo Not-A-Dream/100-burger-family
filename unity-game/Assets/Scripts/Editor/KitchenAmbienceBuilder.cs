@@ -82,21 +82,35 @@ public static class KitchenAmbienceBuilder
             return;
         }
 
-        // 기존 소품 제거 후 재건
+        // ── 기존 소품 + 잔여 오브젝트 전부 제거 ──────────────────────
+        // 이름으로 알려진 그룹 삭제
         foreach (string n in new[] { "KitchenCeiling", "HangingDecor", "JarRow" })
         {
             var old = GameObject.Find(n);
             if (old != null) Object.DestroyImmediate(old);
         }
 
-        // 대들보는 등각뷰(isometric) 카메라에서 스테이션을 가리므로 제외.
-        // 등불·마늘·고추는 낮은 높이(y≈1.6)에 직접 매달아 보이게 함.
+        // 씬 전체에서 이름에 "Lantern", "Garlic", "Chili", "HangingDecor" 가 포함된
+        // 루트 오브젝트를 추가 청소 — 이전 빌드에서 부모 없이 남은 잔여물 제거
+        // (회색 기본 머티리얼로 렌더된 스트레이 등불 포함)
+        var allRoots = SceneManager.GetActiveScene().GetRootGameObjects();
+        foreach (var root in allRoots)
+        {
+            string nm = root.name;
+            if (nm.Contains("Lantern") || nm.Contains("Garlic") ||
+                nm.Contains("Chili")   || nm.Contains("HangingDecor"))
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        // ── 재건 ──────────────────────────────────────────────────
         BuildHangingDecor(roomScene.transform);
         BuildJarRow(roomScene.transform);
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         EditorSceneManager.SaveOpenScenes();
-        Debug.Log("[KitchenAmbienceBuilder] ✅ 등불 + 매달린 채소 + 장독대 배치 완료!");
+        Debug.Log("[KitchenAmbienceBuilder] ✅ 등불(뒷벽3 + 왼쪽벽2) + 장독대 배치 완료!");
     }
 
     // ═════════════════════════════════════════════════════════════
@@ -174,17 +188,20 @@ public static class KitchenAmbienceBuilder
     }
 
     // ═════════════════════════════════════════════════════════════
-    //  2. 매달린 장식 — 등불 3개 + 마늘 5묶음 + 고추 4묶음
+    //  2. 한지 등불 — 뒷벽 3개 + 왼쪽 벽 2개
     //
-    //  전통 한옥 부엌의 특징:
-    //   - 처마/대들보에 새끼줄로 묶은 마늘·고추·건어물을 매달아 보관
-    //   - 수분을 날리고 해충을 막는 실용적 지혜
-    //   - 등불은 밤에도 일할 수 있도록 천장에 매달아 넓게 비춤
+    //  배치 다이어그램 (위에서 본 평면):
     //
-    //  배치:
-    //     등불 3개:  x = -1.5, 0.5, 2.5  (주방 동선 위)
-    //     마늘 5묶음: x = -3, -1.5, 0, 1.5, 3  z = 2.5 (후면 대들보)
-    //     고추 4묶음: x = -2, -0.5, 1, 2.5      z = 0.5 (중간 대들보)
+    //              뒷벽 z=4.0
+    //    🏮(-3,4)   🏮(0,4)   🏮(3,4)
+    //    ┌──────────────────────────────┐
+    //    │                              │
+    // 🏮 │   FarmSt  CookSt  ServeSt   │  왼쪽 벽 x=-4
+    // 🏮 │                              │
+    //    └──────────────────────────────┘
+    //  (-4,-3)  (-4,0)
+    //
+    //  액자(z=1.5) 위 등불은 제거 → 대신 PhotoFrameBuilder의 스포트라이트로 대체
     // ═════════════════════════════════════════════════════════════
     static void BuildHangingDecor(Transform parent)
     {
@@ -192,28 +209,30 @@ public static class KitchenAmbienceBuilder
         root.transform.SetParent(parent, false);
 
         // ── 한지 등불 3개 ─────────────────────────────────────────
-        // 왜 y=1.65?
-        //   대들보(y=2.5)는 등각뷰에서 화면을 가리므로 없앰.
-        //   등불이 스테이션 상판(y≈0.9) 위 0.75m 위치 → 시야에 잘 보임.
-        //   줄 상단이 y=1.65이므로 등불 하단은 y≈1.0 근처에 위치.
-        float hangY = 1.65f; // 스테이션 상판 위 ~0.75m
-        float[] lanternX = { -1.5f, 0.5f, 2.5f };
-        float   lanternZ = -0.5f;
+        // 왜 z=4.0? (뒷벽 근처)
+        //   등불이 z=-0.5(앞쪽)에 있으면 등각뷰에서 스테이션 위를 가림.
+        //   뒷벽(z≈4.5) 바로 앞(z=4.0)에 배치하면 스테이션 뒤쪽으로 물러나
+        //   플레이 화면을 가리지 않음.
+        // 왜 y=2.0? (높이 올림)
+        //   뒷벽에서는 카메라 시야각 덕분에 조금 높여도 스테이션과 겹치지 않음.
+        float lanternY = 2.0f;
+
+        // ── 뒷벽 등불 3개 (x축 배열) ──────────────────────────────
+        float[] lanternX = { -3.0f, 0.0f, 3.0f };
+        float   lanternZ = 4.0f;
         foreach (float lx in lanternX)
-            BuildLantern(root.transform, new Vector3(lx, hangY, lanternZ));
+            BuildLantern(root.transform, new Vector3(lx, lanternY, lanternZ));
 
-        // ── 마늘 묶음 5개 ─────────────────────────────────────────
-        float[] garlicX = { -3.0f, -1.5f, 0.0f, 1.5f, 3.0f };
-        foreach (float gx in garlicX)
-            BuildGarlicBundle(root.transform, new Vector3(gx, hangY, 2.5f));
-
-        // ── 고추 묶음 4개 ─────────────────────────────────────────
-        float[] chiliX = { -2.0f, -0.5f, 1.0f, 2.5f };
-        foreach (float cx in chiliX)
-            BuildChiliBundle(root.transform, new Vector3(cx, hangY, 0.5f));
+        // ── 왼쪽 벽 등불 2개 (뒷벽과 대칭, z축 배열) ──────────────
+        // z=3.0 은 액자(z=1.5) 바로 위에 겹쳐 보이므로 제외.
+        // 액자 조명은 PhotoFrameBuilder 의 스포트라이트로 대체.
+        float   leftWallX = -4.0f;
+        float[] leftWallZ = { -3.0f, 0.0f };
+        foreach (float lz in leftWallZ)
+            BuildLantern(root.transform, new Vector3(leftWallX, lanternY, lz));
 
         EditorUtility.SetDirty(root);
-        Debug.Log("[KitchenAmbienceBuilder] 등불 3개 + 마늘 5묶음 + 고추 4묶음 완료");
+        Debug.Log("[KitchenAmbienceBuilder] 한지 등불 6개 배치 완료 (뒷벽 3 + 왼쪽벽 3)");
     }
 
     // ── 한지 사각 등불 ────────────────────────────────────────────
