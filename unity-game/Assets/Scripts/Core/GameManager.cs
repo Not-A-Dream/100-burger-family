@@ -64,12 +64,20 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ServeBurger()
     {
+        var dailyRun = DailyBurgerRunManager.I;
+        if (!dailyRun.TryCompleteBurger(out float activeSeconds))
+        {
+            state.lastMessage = "오늘은 이미 버거를 완성했습니다.";
+            NotifyChanged();
+            return;
+        }
+
         state.burgerCount++;
         UpdateStreak();
         CheckAchievements();
-        state.lastMessage = $"버거 완성! 누적 {state.burgerCount}개";
+        state.lastMessage = $"버거 완성! 기록 {DailyBurgerRunManager.FormatSeconds(activeSeconds)} / 누적 {state.burgerCount}개";
         NotifyChanged();
-        Debug.Log($"[GameManager] 버거 서빙! 총 {state.burgerCount}개 / 스트릭 {CurrentStreak}일");
+        Debug.Log($"[GameManager] 버거 서빙! 기록 {DailyBurgerRunManager.FormatSeconds(activeSeconds)} / 총 {state.burgerCount}개 / 스트릭 {CurrentStreak}일");
     }
 
     /// <summary>부모 물주기 (협력 메커니즘 유지)</summary>

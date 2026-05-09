@@ -17,6 +17,12 @@ public class ServeCounter : Interactable
             return;
         }
 
+        if (!DailyBurgerRunManager.I.CanServeBurgerToday(out string message))
+        {
+            Debug.Log($"[Serve] {message}");
+            return;
+        }
+
         hand.Drop();
         GameManager.I?.ServeBurger();
         Debug.Log("[Serve] 버거 서빙 완료!");
