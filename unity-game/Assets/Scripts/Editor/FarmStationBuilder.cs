@@ -105,8 +105,9 @@ public static class FarmStationBuilder
         CreateFarmStation(roomScene.transform, "TomatoFarm",  POS_TOMATO,
                           C_TOMATO,  IngredientType.Tomato,  "토마토 재배기");
         CreateFarmStation(roomScene.transform, "LettuceFarm", POS_LETTUCE,
-                          C_LETTUCE, IngredientType.Lettuce, "양상추 재배기");
-        CreateWateringJar(roomScene.transform, POS_JAR);
+                          C_LETTUCE, IngredientType.Lettuce, "양배추 재배기");
+        var jar = CreateWateringJar(roomScene.transform, POS_JAR);
+        jar.AddComponent<WateringCanStation>();
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         EditorSceneManager.SaveOpenScenes();
@@ -135,9 +136,7 @@ public static class FarmStationBuilder
         BuildLabel(go.transform, label);
 
         var farm = go.AddComponent<FarmStation>();
-        farm.cropType        = cropType;
-        farm.seedToWaterTime = 10f;
-        farm.growTime        = 10f;
+        farm.cropType = cropType;
         go.AddComponent<FarmInteractionBubble>();
 
         EditorUtility.SetDirty(go);
@@ -331,7 +330,7 @@ public static class FarmStationBuilder
     //
     //  배치: 두 재배기 사이 (x=-2.9, z=1.8)
     // ══════════════════════════════════════════════════════════════
-    static void CreateWateringJar(Transform parent, Vector3 pos)
+    static GameObject CreateWateringJar(Transform parent, Vector3 pos)
     {
         var go = new GameObject("WateringJar");
         go.transform.SetParent(parent, false);
@@ -413,6 +412,7 @@ public static class FarmStationBuilder
             C_CLAY_DARK);
 
         EditorUtility.SetDirty(go);
+        return go;
     }
 
     // ── 라벨 ─────────────────────────────────────────────────────

@@ -8,7 +8,10 @@ public enum IngredientType
 
     // ── 농장 수확 ─────────────────────────────────
     Tomato,       // 토마토 (FarmStation)
-    Lettuce,      // 양상추 (FarmStation)
+    Lettuce,      // 양배추 (FarmStation)
+
+    // ── 손에 드는 도구 ─────────────────────────────
+    WateringCan,  // 양수기/물뿌리개 (물 주기 상호작용)
 
     // ── 초기 지급 / 발주 재료 ─────────────────────
     Bread,        // 빵 (InventoryManager 초기 지급)
@@ -30,7 +33,8 @@ public static class IngredientNames
     public static string Korean(IngredientType type) => type switch
     {
         IngredientType.Tomato          => "토마토",
-        IngredientType.Lettuce         => "양상추",
+        IngredientType.Lettuce         => "양배추",
+        IngredientType.WateringCan     => "양수기",
         IngredientType.Bread           => "빵",
         IngredientType.RawPatty        => "생 패티",
         IngredientType.RawBacon        => "생 베이컨",

@@ -3,11 +3,11 @@ using UnityEngine;
 /// <summary>
 /// 실내 스마트 재배기.
 /// 웹앱(100-burger)의 Farm 컴포넌트 포팅:
-///   씨앗 심기 → (seedToWaterTime초) → 물 주기 → (growTime초) → 수확
+///   씨앗 심기 → (실시간 2시간) → 물 주기 → (2분 25초) → 수확
 ///
 /// 웹앱과 다른 점:
 ///   - 웹앱: 꽃 피는 데 2시간 (실시간)
-///   - Unity: 10초 / 10초 (게임 시간으로 압축)
+///   - Unity MVP: 같은 규칙을 PlayerPrefs + UTC 시각으로 저장
 ///   - 수확 결과가 PlayerHand 대신 InventoryManager로 바로 입고됨
 ///     (이유: 여러 재료를 쌓아두고 CookStation에서 한 번에 꺼내는 구조)
 ///
@@ -22,77 +22,59 @@ public class FarmStation : Interactable
         Seeded,     // 자라는 중 (물 주기 대기)
         NeedsWater, // 꽃 핌 → E: 물 주기
         Growing,    // 물 준 후 자라는 중
-        Ready       // 수확 가능 → E: 수확
+        Ready,      // 수확 가능 → E: 수확
+        Harvested   // 오늘 수확 완료
     }
 
     [Header("작물 설정")]
     [Tooltip("이 재배기가 키우는 작물 종류")]
     public IngredientType cropType = IngredientType.Tomato;
 
-    [Header("타이머 (초)")]
-    public float seedToWaterTime = 10f; // 심기 → 물 주기 필요까지
-    public float growTime        = 10f; // 물 주기 → 수확 가능까지
-
-    FarmStage _stage = FarmStage.Idle;
-    float     _timer;
-
-    void Update()
-    {
-        // Seeded: seedToWaterTime 경과 → 물 주기 필요 상태로 전환
-        if (_stage == FarmStage.Seeded)
-        {
-            _timer -= Time.deltaTime;
-            if (_timer <= 0f)
-                _stage = FarmStage.NeedsWater;
-        }
-        // Growing: growTime 경과 → 수확 가능 상태로 전환
-        else if (_stage == FarmStage.Growing)
-        {
-            _timer -= Time.deltaTime;
-            if (_timer <= 0f)
-                _stage = FarmStage.Ready;
-        }
-    }
-
     public override string GetPrompt()
     {
         string name = IngredientNames.Korean(cropType);
-        return _stage switch
+        var stage = Stage;
+        int remaining = DailyBurgerRunManager.I.GetRemainingSeconds(cropType);
+
+        return stage switch
         {
-            FarmStage.Idle       => $"{name} 재배기\n[E] 씨앗 심기",
-            FarmStage.Seeded     => $"자라는 중... ({_timer:F0}초)\n잠시 후 물을 주세요",
-            FarmStage.NeedsWater => $"{name}에 꽃이 폈어요!\n[E] 물 주기",
-            FarmStage.Growing    => $"무럭무럭 자라는 중... ({_timer:F0}초)",
+            FarmStage.Idle       => $"{name} 재배기\n[E] 씨앗 심기\n새싹까지 2시간",
+            FarmStage.Seeded     => $"새싹 기다리는 중...\n남은 시간 {FormatRemaining(remaining)} / 총 2시간",
+            FarmStage.NeedsWater => $"{name} 새싹이 났어요!\n양수기를 들고 [E] 물 주기\n물 주면 열매까지 2분 25초",
+            FarmStage.Growing    => $"열매 맺는 중...\n남은 시간 {FormatRemaining(remaining)} / 총 2분 25초",
             FarmStage.Ready      => $"{name} 수확 가능!\n[E] 수확하기",
+            FarmStage.Harvested  => $"{name} 오늘 수확 완료",
             _                    => ""
         };
     }
 
     public override void Interact(PlayerHand hand)
     {
-        switch (_stage)
+        var run = DailyBurgerRunManager.I;
+
+        switch (Stage)
         {
             case FarmStage.Idle:
-                // 씨앗 심기 (손에 아무것도 없어도 됨)
-                _stage = FarmStage.Seeded;
-                _timer = seedToWaterTime;
-                Debug.Log($"[Farm] {IngredientNames.Korean(cropType)} 씨앗 심기 완료!");
+                run.TryPlantSeed(cropType, out _);
                 break;
 
             case FarmStage.NeedsWater:
-                // 물 주기 → 성장 시작
-                _stage = FarmStage.Growing;
-                _timer = growTime;
-                Debug.Log("[Farm] 물 주기 완료! 성장 시작.");
+                if (hand == null || !hand.Has(IngredientType.WateringCan))
+                {
+                    Debug.Log("[Farm] 양수기를 먼저 들어야 물을 줄 수 있어요.");
+                    return;
+                }
+                run.TryWater(cropType, out _);
                 break;
 
             case FarmStage.Ready:
-                // 수확 → InventoryManager에 추가
-                // 왜 PlayerHand 대신 InventoryManager? CookStation이
-                // 여러 재료를 한 번에 요구하므로, 선반에 쌓아두는 방식이 자연스럼.
-                InventoryManager.I?.Add(cropType, 1);
-                _stage = FarmStage.Idle;
-                Debug.Log($"[Farm] {IngredientNames.Korean(cropType)} 수확 완료! 인벤토리에 추가됨.");
+                if (run.TryHarvest(cropType, out _))
+                {
+                    // 왜 PlayerHand 대신 InventoryManager? CookStation이
+                    // 여러 재료를 한 번에 요구하므로, 선반에 쌓아두는 방식이 자연스럼.
+                    InventoryManager.I?.Add(cropType, 1);
+                    Debug.Log($"[Farm] {IngredientNames.Korean(cropType)} 수확 완료! 인벤토리에 추가됨.");
+                }
                 break;
 
             default:
@@ -102,5 +84,24 @@ public class FarmStation : Interactable
     }
 
     // 현재 단계 읽기 (InGameHUD 등에서 사용)
-    public FarmStage Stage => _stage;
+    public FarmStage Stage => DailyBurgerRunManager.I.GetCropPhase(cropType) switch
+    {
+        CropGrowthPhase.Empty       => FarmStage.Idle,
+        CropGrowthPhase.SeedPlanted => FarmStage.Seeded,
+        CropGrowthPhase.SproutReady => FarmStage.NeedsWater,
+        CropGrowthPhase.Watered     => FarmStage.Growing,
+        CropGrowthPhase.FruitReady  => FarmStage.Ready,
+        CropGrowthPhase.Harvested   => FarmStage.Harvested,
+        _                           => FarmStage.Idle
+    };
+
+    static string FormatRemaining(int seconds)
+    {
+        int h = seconds / 3600;
+        int m = (seconds % 3600) / 60;
+        int s = seconds % 60;
+
+        if (h > 0) return $"{h}시간 {m:00}분";
+        return $"{m:00}:{s:00}";
+    }
 }

@@ -30,6 +30,27 @@ public class PlayerController : MonoBehaviour
             _rb.constraints  = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
+
+        EnsureWateringCanInteractable();
+        EnsureFarmTimeSigns();
+    }
+
+    void EnsureWateringCanInteractable()
+    {
+        var wateringCan = GameObject.Find("WateringCan");
+        if (wateringCan == null) return;
+
+        if (wateringCan.GetComponent<WateringCanStation>() == null)
+            wateringCan.AddComponent<WateringCanStation>();
+    }
+
+    void EnsureFarmTimeSigns()
+    {
+        foreach (var farm in FindObjectsByType<FarmStation>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            if (farm.GetComponent<FarmTimeSign>() == null)
+                farm.gameObject.AddComponent<FarmTimeSign>();
+        }
     }
 
     void Update()
