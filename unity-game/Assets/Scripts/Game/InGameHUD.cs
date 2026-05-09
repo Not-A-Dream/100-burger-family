@@ -30,6 +30,8 @@ public class InGameHUD : MonoBehaviour
     [Header("나가기")]
     public Button backButton;
 
+    Button _debugCompleteCropsButton;
+
     CookStation      _cookStation;
     GrillStation     _grillStation;
     PlayerController _player;
@@ -63,6 +65,8 @@ public class InGameHUD : MonoBehaviour
         if (grillProgressBar) grillProgressBar.SetActive(false);
         if (promptText)       promptText.text = "";
         if (heldItemText)     heldItemText.text = "";
+
+        EnsureDebugCompleteButton();
     }
 
     void OnDestroy()
@@ -172,5 +176,59 @@ public class InGameHUD : MonoBehaviour
         GameManager.I?.state.Reset();
         InventoryManager.I?.Reset();
         FindFirstObjectByType<UIScreenController>()?.ShowMainMenu();
+    }
+
+    public void OnClick_DebugCompleteCrops()
+    {
+        DailyBurgerRunManager.I.DebugCompleteAllCrops();
+        UpdatePrompt("테스트: 토마토/양배추 바로 수확 가능");
+    }
+
+    void EnsureDebugCompleteButton()
+    {
+        if (_debugCompleteCropsButton != null) return;
+
+        var parent = transform;
+        var old = parent.Find("Btn_DebugCompleteCrops");
+        if (old != null)
+        {
+            _debugCompleteCropsButton = old.GetComponent<Button>();
+            if (_debugCompleteCropsButton != null)
+            {
+                _debugCompleteCropsButton.onClick.RemoveAllListeners();
+                _debugCompleteCropsButton.onClick.AddListener(OnClick_DebugCompleteCrops);
+            }
+            return;
+        }
+
+        var go = new GameObject("Btn_DebugCompleteCrops");
+        go.transform.SetParent(parent, false);
+
+        var rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(1f, 1f);
+        rt.anchoredPosition = new Vector2(-24f, -24f);
+        rt.sizeDelta = new Vector2(170f, 42f);
+
+        var bg = go.AddComponent<Image>();
+        bg.color = new Color(0.18f, 0.42f, 0.28f, 0.92f);
+
+        _debugCompleteCropsButton = go.AddComponent<Button>();
+        _debugCompleteCropsButton.onClick.AddListener(OnClick_DebugCompleteCrops);
+
+        var labelGO = new GameObject("Label");
+        labelGO.transform.SetParent(go.transform, false);
+        var labelRT = labelGO.AddComponent<RectTransform>();
+        labelRT.anchorMin = Vector2.zero;
+        labelRT.anchorMax = Vector2.one;
+        labelRT.offsetMin = Vector2.zero;
+        labelRT.offsetMax = Vector2.zero;
+
+        var label = labelGO.AddComponent<TextMeshProUGUI>();
+        label.text = "작물 바로완성";
+        label.fontSize = 18f;
+        label.alignment = TextAlignmentOptions.Center;
+        label.color = Color.white;
     }
 }

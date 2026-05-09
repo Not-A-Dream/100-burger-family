@@ -48,6 +48,7 @@ public class FarmInteractionBubble : MonoBehaviour
     TMP_Text _txtMain;    // "토마토 씨앗을 심어요!"
     TMP_Text _txtAction;  // "[E] 씨앗 심기"
     TMP_Text _txtTimer;   // "⏱ 8초 남았어요"
+    TMP_Text _txtTimeBadge; // 말풍선에서 가장 눈에 띄는 시간 배지
 
     FarmStation.FarmStage _prevStage = (FarmStation.FarmStage)255;
 
@@ -77,7 +78,7 @@ public class FarmInteractionBubble : MonoBehaviour
         Color  cropColor = isTomato
             ? new Color(0.85f, 0.18f, 0.10f)   // 토마토 빨강
             : new Color(0.22f, 0.70f, 0.18f);  // 양상추 초록
-        string cropName  = isTomato ? "토마토" : "양상추";
+        string cropName  = isTomato ? "토마토" : "양배추";
 
         // ── 루트 World-Space Canvas ──────────────────────────────
         _root = new GameObject("FarmBubble");
@@ -89,12 +90,12 @@ public class FarmInteractionBubble : MonoBehaviour
         canvas.sortingOrder = 10;
 
         var rt = _root.GetComponent<RectTransform>();
-        rt.sizeDelta  = new Vector2(230f, 215f);
+        rt.sizeDelta  = new Vector2(250f, 250f);
         rt.localScale = Vector3.one * 0.007f;
 
         // ── 배경 + 테두리 ────────────────────────────────────────
         Stretch(_root.transform, "BG", C_BG);
-        Outline(_root.transform, C_BORDER, 3f, 230f, 215f);
+        Outline(_root.transform, C_BORDER, 3f, 250f, 250f);
 
         // ── 헤더 바 (작물명, 색상 강조) ───────────────────────────
         Rect(_root.transform, "HeaderBar",
@@ -102,6 +103,8 @@ public class FarmInteractionBubble : MonoBehaviour
         Text(_root.transform, "HeaderTxt",
             new Vector2(0f, 89f), new Vector2(220f, 27f),
             cropName + " 재배기", 12.5f, Color.white, bold: true);
+
+        BuildCropBadge(_root.transform, isTomato, cropColor);
 
         // ── 아이콘 패널 3개 (같은 위치, 하나씩 켬) ───────────────
         // 왜 같은 위치? SetActive로 교체 — 코드 단순화
@@ -124,8 +127,15 @@ public class FarmInteractionBubble : MonoBehaviour
             new Vector2(0f, -79f), new Vector2(218f, 28f),
             "", 14f, C_TEXT2, bold: true);
         _txtTimer  = Text(_root.transform, "TxtTimer",
-            new Vector2(0f, -98f), new Vector2(218f, 22f),
-            "", 11f, C_TIMER);
+            new Vector2(0f, -98f), new Vector2(232f, 22f),
+            "", 11.5f, C_TIMER);
+
+        Rect(_root.transform, "TimeBadgeBg",
+            new Vector2(0f, -119f), new Vector2(224f, 28f),
+            new Color(0.18f, 0.34f, 0.48f, 0.92f));
+        _txtTimeBadge = Text(_root.transform, "TxtTimeBadge",
+            new Vector2(0f, -119f), new Vector2(216f, 28f),
+            "", 15f, Color.white, bold: true);
 
         // ── 꼬리 삼각형 ──────────────────────────────────────────
         var tailGO = new GameObject("Tail");
@@ -202,7 +212,7 @@ public class FarmInteractionBubble : MonoBehaviour
         // 작물 구분 라벨 (상단)
         Text(p.transform, "Label",
             new Vector2(0f, 46f), new Vector2(200f, 24f),
-            isTomato ? "🍅 토마토 씨앗" : "🥬 양상추 씨앗",
+            isTomato ? "토마토 씨앗" : "양배추 씨앗",
             13f, cropColor * 0.85f, bold: true);
 
         return p;
@@ -265,7 +275,7 @@ public class FarmInteractionBubble : MonoBehaviour
         // 라벨 (상단)
         Text(p.transform, "Label",
             new Vector2(0f, 46f), new Vector2(200f, 24f),
-            "새싹 텄어요 💧 물 주기",
+            "새싹 텄어요 - 양수기 필요",
             13f, new Color(0.18f, 0.45f, 0.82f), bold: true);
 
         return p;
@@ -355,10 +365,53 @@ public class FarmInteractionBubble : MonoBehaviour
         // 라벨 (상단)
         Text(p.transform, "Label",
             new Vector2(0f, 46f), new Vector2(200f, 24f),
-            isTomato ? "토마토 완성! 🍅" : "양상추 완성! 🥬",
+            isTomato ? "토마토 완성!" : "양배추 완성!",
             13f, cropColor, bold: true);
 
         return p;
+    }
+
+    void BuildCropBadge(Transform parent, bool isTomato, Color cropColor)
+    {
+        var badge = Panel(parent, "CropBadge", new Vector2(-86f, 88f), new Vector2(30f, 24f));
+        badge.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.18f);
+
+        if (isTomato)
+        {
+            Rect(badge.transform, "Fruit",
+                new Vector2(0f, -2f), new Vector2(18f, 18f),
+                new Color(0.88f, 0.16f, 0.10f));
+            Rect(badge.transform, "LeafC",
+                new Vector2(0f, 8f), new Vector2(4f, 8f),
+                new Color(0.16f, 0.56f, 0.12f));
+            Rect(badge.transform, "LeafL",
+                new Vector2(-6f, 6f), new Vector2(9f, 4f),
+                new Color(0.16f, 0.56f, 0.12f), -25f);
+            Rect(badge.transform, "LeafR",
+                new Vector2(6f, 6f), new Vector2(9f, 4f),
+                new Color(0.16f, 0.56f, 0.12f), 25f);
+            Rect(badge.transform, "Shine",
+                new Vector2(-5f, 1f), new Vector2(5f, 3f),
+                new Color(1f, 1f, 1f, 0.38f));
+        }
+        else
+        {
+            Rect(badge.transform, "Leaf0",
+                new Vector2(0f, -2f), new Vector2(22f, 16f),
+                new Color(0.16f, 0.50f, 0.12f));
+            Rect(badge.transform, "Leaf1",
+                new Vector2(0f, 0f), new Vector2(17f, 14f),
+                new Color(0.24f, 0.66f, 0.18f));
+            Rect(badge.transform, "Leaf2",
+                new Vector2(0f, 2f), new Vector2(12f, 10f),
+                cropColor);
+            Rect(badge.transform, "SideL",
+                new Vector2(-9f, -1f), new Vector2(8f, 13f),
+                new Color(0.22f, 0.60f, 0.16f), -18f);
+            Rect(badge.transform, "SideR",
+                new Vector2(9f, -1f), new Vector2(8f, 13f),
+                new Color(0.26f, 0.70f, 0.18f), 18f);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -366,6 +419,15 @@ public class FarmInteractionBubble : MonoBehaviour
     // ══════════════════════════════════════════════════════════════
     void Update()
     {
+        // Play 중 스크립트를 다시 컴파일하면 기존 FarmBubble 오브젝트가 남아
+        // 새 시간 배지가 없는 상태가 될 수 있다. 그때는 한 번만 재생성한다.
+        if (_root != null && _txtTimeBadge == null)
+        {
+            Destroy(_root);
+            BuildBubble();
+            _prevStage = (FarmStation.FarmStage)255;
+        }
+
         if (_player == null)
         {
             _player = FindFirstObjectByType<PlayerController>();
@@ -390,7 +452,7 @@ public class FarmInteractionBubble : MonoBehaviour
         // 상태 변화 시 아이콘/텍스트 교체
         var stage     = _farm.Stage;
         bool isTomato = _farm.cropType == IngredientType.Tomato;
-        string name   = isTomato ? "토마토" : "양상추";
+        string name   = isTomato ? "토마토" : "양배추";
 
         if (stage != _prevStage)
         {
@@ -409,7 +471,8 @@ public class FarmInteractionBubble : MonoBehaviour
         _pSprout.SetActive(stage == FarmStation.FarmStage.Seeded ||
                            stage == FarmStation.FarmStage.NeedsWater);
         _pCrop  .SetActive(stage == FarmStation.FarmStage.Growing ||
-                           stage == FarmStation.FarmStage.Ready);
+                           stage == FarmStation.FarmStage.Ready ||
+                           stage == FarmStation.FarmStage.Harvested);
 
         // 텍스트 전환
         switch (stage)
@@ -420,19 +483,23 @@ public class FarmInteractionBubble : MonoBehaviour
                 break;
             case FarmStation.FarmStage.Seeded:
                 SetText(_txtMain,   "새싹이 자라는 중...");
-                SetText(_txtAction, "잠시 기다려요 🌱");
+                SetText(_txtAction, "새싹까지 2시간");
                 break;
             case FarmStation.FarmStage.NeedsWater:
-                SetText(_txtMain,   "새싹이 텄어요!\n물을 주세요! 💧");
-                SetText(_txtAction, "[E] 물 주기");
+                SetText(_txtMain,   "새싹이 텄어요!\n양수기를 들고 오세요");
+                SetText(_txtAction, "[E] 물 주기 - 열매까지 2:25");
                 break;
             case FarmStation.FarmStage.Growing:
-                SetText(_txtMain,   "무럭무럭 자라는 중...");
-                SetText(_txtAction, "조금만 기다려요 🌿");
+                SetText(_txtMain,   "열매 맺는 중...");
+                SetText(_txtAction, "랭킹 타이머 진행 중");
                 break;
             case FarmStation.FarmStage.Ready:
                 SetText(_txtMain,   $"{cropName} 완성!\n수확해요!");
                 SetText(_txtAction, "[E] 수확하기 ✓");
+                break;
+            case FarmStation.FarmStage.Harvested:
+                SetText(_txtMain,   $"{cropName} 오늘 수확 완료");
+                SetText(_txtAction, "내일 다시 심어요");
                 break;
         }
     }
@@ -440,17 +507,60 @@ public class FarmInteractionBubble : MonoBehaviour
     void RefreshTimer(FarmStation.FarmStage stage)
     {
         if (_txtTimer == null) return;
-        if (stage == FarmStation.FarmStage.Seeded || stage == FarmStation.FarmStage.Growing)
+
+        if (stage == FarmStation.FarmStage.Idle)
         {
-            // GetPrompt()에서 초 단위 숫자 파싱 (예: "자라는 중... (8초)")
-            var m = System.Text.RegularExpressions.Regex.Match(
-                        _farm.GetPrompt(), @"(\d+)초");
-            _txtTimer.text = m.Success ? $"⏱ {m.Value} 남았어요" : "";
+            _txtTimer.text = "기준 시간: 씨앗 -> 새싹 2시간";
+            SetTimeBadge("새싹까지 2시간");
+        }
+        else if (stage == FarmStation.FarmStage.NeedsWater)
+        {
+            _txtTimer.text = "물 주기 후 열매까지 2분 25초";
+            SetTimeBadge("물 주면 02:25");
+        }
+        else if (stage == FarmStation.FarmStage.Seeded || stage == FarmStation.FarmStage.Growing)
+        {
+            int remaining = DailyBurgerRunManager.I.GetRemainingSeconds(_farm.cropType);
+            string label = stage == FarmStation.FarmStage.Seeded ? "새싹까지" : "열매까지";
+            _txtTimer.text = $"{label} 남은 시간: {FormatRemaining(remaining)}";
+            SetTimeBadge($"{label} {FormatRemaining(remaining)}");
+            if (stage == FarmStation.FarmStage.Growing && DailyBurgerRunManager.I.HasActiveRun)
+            {
+                _txtTimer.text += $" / 기록 {DailyBurgerRunManager.FormatSeconds(DailyBurgerRunManager.I.ActiveRunSeconds)}";
+                SetTimeBadge($"{label} {FormatRemaining(remaining)} | 기록 {DailyBurgerRunManager.FormatSeconds(DailyBurgerRunManager.I.ActiveRunSeconds)}");
+            }
+        }
+        else if (stage == FarmStation.FarmStage.Ready)
+        {
+            _txtTimer.text = "수확 가능";
+            SetTimeBadge("지금 수확 가능");
+        }
+        else if (stage == FarmStation.FarmStage.Harvested)
+        {
+            _txtTimer.text = "오늘 수확 완료";
+            SetTimeBadge("오늘 완료");
         }
         else
         {
             _txtTimer.text = "";
+            SetTimeBadge("");
         }
+    }
+
+    void SetTimeBadge(string text)
+    {
+        if (_txtTimeBadge != null)
+            _txtTimeBadge.text = text;
+    }
+
+    static string FormatRemaining(int seconds)
+    {
+        int h = seconds / 3600;
+        int m = (seconds % 3600) / 60;
+        int s = seconds % 60;
+
+        if (h > 0) return $"{h}시간 {m:00}분";
+        return $"{m:00}:{s:00}";
     }
 
     static void SetText(TMP_Text t, string s) { if (t != null) t.text = s; }

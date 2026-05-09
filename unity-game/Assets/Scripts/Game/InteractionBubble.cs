@@ -18,6 +18,7 @@ public class InteractionBubble : MonoBehaviour
     Interactable _interactable;
     Canvas       _canvas;
     TMP_Text     _text;
+    TMP_Text     _timeBadgeText;
     GameObject   _bubbleGO;
 
     PlayerController _player;
@@ -42,7 +43,7 @@ public class InteractionBubble : MonoBehaviour
         _canvas.sortingOrder = 10;
 
         var rt = _bubbleGO.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(200f, 70f);
+        rt.sizeDelta = new Vector2(245f, 118f);
         rt.localScale = new Vector3(0.008f, 0.008f, 0.008f);
 
         // ── 말풍선 배경 ──────────────────────────────────
@@ -80,8 +81,8 @@ public class InteractionBubble : MonoBehaviour
         var textRT = textGO.AddComponent<RectTransform>();
         textRT.anchorMin = Vector2.zero;
         textRT.anchorMax = Vector2.one;
-        textRT.offsetMin = new Vector2(8f, 8f);
-        textRT.offsetMax = new Vector2(-8f, -8f);
+        textRT.offsetMin = new Vector2(10f, 42f);
+        textRT.offsetMax = new Vector2(-10f, -8f);
 
         _text = textGO.AddComponent<TextMeshProUGUI>();
         _text.text      = "";
@@ -90,10 +91,38 @@ public class InteractionBubble : MonoBehaviour
         _text.alignment = TextAlignmentOptions.Center;
         _text.fontStyle = FontStyles.Bold;
 
-        // 한국어 폰트 자동 적용
-        var font = Resources.Load<TMP_FontAsset>("Fonts & Materials/MalgunGothic SDF")
-                ?? FindFirstObjectByType<TMP_Text>()?.font;
-        if (font != null) _text.font = font;
+        ApplyReadableFont(_text);
+
+        // ── 큰 시간 배지 ─────────────────────────────────
+        // 기존 말풍선 텍스트는 폰트 아틀라스 문제로 안 보일 수 있으므로,
+        // 숫자가 큰 별도 배지를 만들어 시간 정보가 반드시 눈에 띄게 한다.
+        var badgeGO = new GameObject("TimeBadge");
+        badgeGO.transform.SetParent(_bubbleGO.transform, false);
+        var badgeRT = badgeGO.AddComponent<RectTransform>();
+        badgeRT.anchorMin = new Vector2(0.5f, 0f);
+        badgeRT.anchorMax = new Vector2(0.5f, 0f);
+        badgeRT.pivot = new Vector2(0.5f, 0f);
+        badgeRT.anchoredPosition = new Vector2(0f, 8f);
+        badgeRT.sizeDelta = new Vector2(220f, 34f);
+
+        var badgeImg = badgeGO.AddComponent<Image>();
+        badgeImg.color = new Color(0.05f, 0.24f, 0.42f, 0.96f);
+
+        var badgeTextGO = new GameObject("TimeText");
+        badgeTextGO.transform.SetParent(badgeGO.transform, false);
+        var badgeTextRT = badgeTextGO.AddComponent<RectTransform>();
+        badgeTextRT.anchorMin = Vector2.zero;
+        badgeTextRT.anchorMax = Vector2.one;
+        badgeTextRT.offsetMin = Vector2.zero;
+        badgeTextRT.offsetMax = Vector2.zero;
+
+        _timeBadgeText = badgeTextGO.AddComponent<TextMeshProUGUI>();
+        _timeBadgeText.text = "";
+        _timeBadgeText.fontSize = 22;
+        _timeBadgeText.color = Color.white;
+        _timeBadgeText.alignment = TextAlignmentOptions.Center;
+        _timeBadgeText.fontStyle = FontStyles.Bold;
+        ApplyReadableFont(_timeBadgeText);
 
         _bubbleGO.SetActive(false);
     }
@@ -104,6 +133,12 @@ public class InteractionBubble : MonoBehaviour
         {
             _player = FindFirstObjectByType<PlayerController>();
             return;
+        }
+
+        if (_bubbleGO != null && _timeBadgeText == null)
+        {
+            Destroy(_bubbleGO);
+            BuildBubble();
         }
 
         float dist = Vector3.Distance(transform.position, _player.transform.position);
@@ -118,6 +153,8 @@ public class InteractionBubble : MonoBehaviour
                 // 텍스트 갱신
                 if (_text != null)
                     _text.text = _interactable.GetPrompt();
+                if (_timeBadgeText != null)
+                    _timeBadgeText.text = BuildTimeBadgeText();
 
                 // 카메라를 향해 항상 정면
                 if (Camera.main != null)
@@ -130,5 +167,51 @@ public class InteractionBubble : MonoBehaviour
                 _bubbleGO.transform.localPosition = localPos;
             }
         }
+    }
+
+    string BuildTimeBadgeText()
+    {
+        if (_interactable is not FarmStation farm)
+            return "";
+
+        int remain = DailyBurgerRunManager.I.GetRemainingSeconds(farm.cropType);
+        return farm.Stage switch
+        {
+            FarmStation.FarmStage.Idle       => "SEED 2:00:00",
+            FarmStation.FarmStage.Seeded     => $"SPROUT {FormatClock(remain)}",
+            FarmStation.FarmStage.NeedsWater => "WATER -> 02:25",
+            FarmStation.FarmStage.Growing    => DailyBurgerRunManager.I.HasActiveRun
+                ? $"FRUIT {FormatClock(remain)} | RUN {DailyBurgerRunManager.FormatSeconds(DailyBurgerRunManager.I.ActiveRunSeconds)}"
+                : $"FRUIT {FormatClock(remain)}",
+            FarmStation.FarmStage.Ready      => "READY NOW",
+            FarmStation.FarmStage.Harvested  => "DONE TODAY",
+            _                                => ""
+        };
+    }
+
+    static string FormatClock(int seconds)
+    {
+        int h = seconds / 3600;
+        int m = (seconds % 3600) / 60;
+        int s = seconds % 60;
+        return h > 0 ? $"{h}:{m:00}:{s:00}" : $"{m:00}:{s:00}";
+    }
+
+    static void ApplyReadableFont(TMP_Text text)
+    {
+        if (text == null) return;
+
+        var defaultFont = TMP_Settings.defaultFontAsset;
+        if (defaultFont != null)
+        {
+            text.font = defaultFont;
+            return;
+        }
+
+        // MalgunGothic SDF는 현재 프로젝트에서 atlas texture 경고가 나고 있어
+        // 깨진 에셋을 강제로 물리지 않는다.
+        var font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        if (font != null)
+            text.font = font;
     }
 }
