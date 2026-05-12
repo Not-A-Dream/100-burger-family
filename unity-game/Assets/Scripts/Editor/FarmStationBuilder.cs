@@ -73,7 +73,7 @@ public static class FarmStationBuilder
     // ── 배치 좌표 ─────────────────────────────────────────────────
     static readonly Vector3 POS_TOMATO   = new Vector3(-3.8f, 0f, 1.0f);
     static readonly Vector3 POS_LETTUCE  = new Vector3(-3.8f, 0f, 2.5f);
-    static readonly Vector3 POS_JAR      = new Vector3(-2.9f, 0f, 1.8f);
+    static readonly Vector3 POS_WATERING_CAN = new Vector3(-3.34f, 0f, -0.5f);
 
     // ─────────────────────────────────────────────────────────────
     [MenuItem("Tools/100 Burger Family/Build FarmStations")]
@@ -96,7 +96,7 @@ public static class FarmStationBuilder
             return;
         }
 
-        foreach (string n in new[] { "TomatoFarm", "LettuceFarm", "WateringJar" })
+        foreach (string n in new[] { "TomatoFarm", "LettuceFarm", "WateringJar", "WateringCan" })
         {
             var old = GameObject.Find(n);
             if (old != null) Object.DestroyImmediate(old);
@@ -106,8 +106,9 @@ public static class FarmStationBuilder
                           C_TOMATO,  IngredientType.Tomato,  "토마토 재배기");
         CreateFarmStation(roomScene.transform, "LettuceFarm", POS_LETTUCE,
                           C_LETTUCE, IngredientType.Lettuce, "양배추 재배기");
-        var jar = CreateWateringJar(roomScene.transform, POS_JAR);
-        jar.AddComponent<WateringCanStation>();
+        var wateringCan = CreateWateringCan(roomScene.transform, POS_WATERING_CAN);
+        wateringCan.AddComponent<WateringCanStation>();
+        wateringCan.AddComponent<InteractionBubble>();
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         EditorSceneManager.SaveOpenScenes();
@@ -328,14 +329,21 @@ public static class FarmStationBuilder
     //  넓은 배, 좁은 목, 입술이 있는 형태
     //  곁에 대나무 국자 (박 바가지 대신 대나무 손잡이)
     //
-    //  배치: 두 재배기 사이 (x=-2.9, z=1.8)
+    //  배치: 재배기 앞쪽 동선에 둔다.
+    //  왜 재배기 사이가 아닌 앞쪽인가?
+    //    플레이어가 물 도구를 집은 뒤 토마토/양배추 재배기로 이동하는 동선이
+    //    분명해야 "물 주기"가 별도 플레이 행동으로 느껴진다.
     // ══════════════════════════════════════════════════════════════
-    static GameObject CreateWateringJar(Transform parent, Vector3 pos)
+    static GameObject CreateWateringCan(Transform parent, Vector3 pos)
     {
-        var go = new GameObject("WateringJar");
+        var go = new GameObject("WateringCan");
         go.transform.SetParent(parent, false);
         go.transform.localPosition = pos;
         go.transform.localScale    = Vector3.one;
+
+        var col = go.AddComponent<BoxCollider>();
+        col.size   = new Vector3(0.9f, 0.9f, 1.15f);
+        col.center = new Vector3(0.08f, 0.32f, 0.05f);
 
         // 항아리 몸통 (배가 볼록한 구형)
         SubSph(go.transform, "Jar_Body",

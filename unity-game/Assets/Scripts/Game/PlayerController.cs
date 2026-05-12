@@ -37,11 +37,14 @@ public class PlayerController : MonoBehaviour
 
     void EnsureWateringCanInteractable()
     {
-        var wateringCan = GameObject.Find("WateringCan");
+        var wateringCan = GameObject.Find("WateringCan")
+                       ?? GameObject.Find("WateringJar");
         if (wateringCan == null) return;
 
         if (wateringCan.GetComponent<WateringCanStation>() == null)
             wateringCan.AddComponent<WateringCanStation>();
+        if (wateringCan.GetComponent<InteractionBubble>() == null)
+            wateringCan.AddComponent<InteractionBubble>();
     }
 
     void EnsureFarmTimeSigns()
@@ -69,6 +72,13 @@ public class PlayerController : MonoBehaviour
         // ── E / Space → 상호작용 ──────────────────────────
         if (kb.eKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)
         {
+            if (ShouldDropWateringCan())
+            {
+                WateringCanStation.TryDropHeld(_hand, transform);
+                OnItemChanged?.Invoke(_hand.DisplayName());
+                return;
+            }
+
             _nearestInteractable?.Interact(_hand);
             OnItemChanged?.Invoke(_hand.DisplayName());
         }
@@ -110,5 +120,17 @@ public class PlayerController : MonoBehaviour
         {
             OnPromptChanged?.Invoke(nearest.GetPrompt());
         }
+    }
+
+    bool ShouldDropWateringCan()
+    {
+        if (_hand == null || !_hand.Has(IngredientType.WateringCan))
+            return false;
+
+        // 물이 필요한 재배기 앞에서는 같은 키가 "내려놓기"가 아니라 "물 주기"로 동작해야 한다.
+        if (_nearestInteractable is FarmStation { Stage: FarmStation.FarmStage.NeedsWater })
+            return false;
+
+        return true;
     }
 }

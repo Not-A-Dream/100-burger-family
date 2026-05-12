@@ -10,6 +10,8 @@ using UnityEngine;
 /// </summary>
 public class PlayerVisual : MonoBehaviour
 {
+    public const string RightHandAnchorName = "RightHandAnchor";
+
     [Header("현재 캐릭터 (런타임에 RoomManager에서 읽어옴)")]
     [SerializeField] CharacterType _currentType = CharacterType.None;
 
@@ -26,7 +28,13 @@ public class PlayerVisual : MonoBehaviour
 
         // 기존 비주얼 자식 삭제
         for (int i = transform.childCount - 1; i >= 0; i--)
-            DestroyImmediate(transform.GetChild(i).gameObject);
+        {
+            var child = transform.GetChild(i);
+            if (child.GetComponentInChildren<WateringCanStation>(true) != null)
+                continue;
+
+            DestroyImmediate(child.gameObject);
+        }
 
         float s = CharacterData.GetBodyScale(type);
 
@@ -52,6 +60,8 @@ public class PlayerVisual : MonoBehaviour
         // ── 3. 악세서리 ──────────────────────────────────
         BuildAccessory(type, head.transform, s);
 
+        BuildHandAnchors(s);
+
         // ── 4. 콜라이더 크기 재설정 ──────────────────────
         var col = GetComponent<CapsuleCollider>();
         if (col != null)
@@ -63,6 +73,32 @@ public class PlayerVisual : MonoBehaviour
         }
 
         Debug.Log($"[PlayerVisual] 캐릭터 생성: {CharacterData.GetDisplayName(type)}");
+    }
+
+    void BuildHandAnchors(float bodyScale)
+    {
+        // 오른손 위치를 명시적으로 만든다.
+        // 왜 별도 앵커인가?
+        //   Player 루트는 이동/회전 기준이고 Body는 시각용 자식이라, 손 아이템은 고정 앵커에 붙여야
+        //   캐릭터 스케일이 바뀌어도 "오른손에 들고 있음" 위치가 안정적으로 유지된다.
+        var existing = transform.Find(RightHandAnchorName);
+        var anchor = existing != null ? existing.gameObject : new GameObject(RightHandAnchorName);
+        anchor.transform.SetParent(transform, false);
+        anchor.transform.localPosition = new Vector3(bodyScale * 0.82f, bodyScale * 1.35f, bodyScale * 0.30f);
+        anchor.transform.localRotation = Quaternion.Euler(0f, 0f, -8f);
+        anchor.transform.localScale = Vector3.one;
+
+        for (int i = anchor.transform.childCount - 1; i >= 0; i--)
+        {
+            var child = anchor.transform.GetChild(i);
+            if (child.GetComponent<WateringCanStation>() != null)
+                continue;
+
+            DestroyImmediate(child.gameObject);
+        }
+
+        AddSphere(anchor.transform, "RightHand",
+            Vector3.zero, 0.16f, 1f, CharacterData.GetSkinColor(_currentType));
     }
 
     void BuildAccessory(CharacterType type, Transform headTf, float s)
