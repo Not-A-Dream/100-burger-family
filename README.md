@@ -78,3 +78,84 @@ This is a communication tool.
 - Burger counter
 - Local prototype
 - Git LFS setup
+
+---
+
+## Gameplay Quality — Four Standards for a Perfect Burger
+
+The quality of each burger is measured across four dimensions.
+These are not just game mechanics — they reflect the care and attention that goes into a real meal.
+
+### Freshness
+
+Ingredients lose freshness over time, even when stored in the refrigerator.
+Using each ingredient at the right moment is part of the craft.
+
+Freshness varies by ingredient — some spoil faster than others.
+
+| Ingredient | Fresh (100%) | Good (90%) | Fair (80%) | Discard |
+|---|---|---|---|---|
+| Tomato, Lettuce | Within 1 day | Day 2 | Day 3 | Over 3 days |
+| Bun | Within 2 days | Day 3~4 | — | Over 4 days |
+| Patty, Bacon | Within 3 days | Day 4~7 | — | Over 7 days |
+| Mustard Sauce, Chili Sauce | Within 2 weeks | — | — | Over 2 weeks |
+
+> All ingredients are stored in the refrigerator for gameplay convenience.
+
+### Grill Accuracy
+
+The patty has a 15-stage doneness gauge.
+The guest requests a specific doneness level — hitting it precisely earns a higher score.
+
+```
+Rare │ Med-Rare │ Medium │ Med-Well │ Well-Done
+ 1-3 │   4-6    │  7-9   │  10-12   │  13-15
+
+  Center slot → Perfect (×1.5)
+  Side slots  → Good    (×1.0)
+  Out of range → Failed  (×0.0)
+```
+
+### Supply & Ingredient Management
+
+Ingredients must be restocked before they run out.
+Running out mid-cook breaks the flow and wastes time.
+Each ingredient has its own order schedule — plan ahead with expiry in mind.
+
+| Ingredient | Order Schedule | Quantity |
+|---|---|---|
+| Bun | Mon / Tue / Wed / Thu / Fri (daily) | 1~2 per order |
+| Patty, Bacon | Mon / Wed / Fri | 5 per order (fixed) |
+| Mustard Sauce, Chili Sauce | Mon / Fri | 1 per order (fixed) |
+| Tomato, Lettuce | Harvested in-game | — |
+
+> Key principle: order with expiry in mind — not when you run out, but before you do.
+
+### Time
+
+Faster completion earns a time bonus — but accuracy always comes first.
+A rushed burger with a failed grill scores lower than a careful, well-timed one.
+
+| Completion Time | Bonus |
+|---|---|
+| Under 3 min | +20% |
+| Under 5 min | +10% |
+| Over 10 min | none |
+
+### Burger Grade & Final Score
+
+Each burger receives a grade based on its overall completion score.
+A discarded burger does not count toward the burger total.
+
+| Grade | Score Range | Burger Count |
+|---|---|---|
+| 🏆 Premium | 90 ~ 100 | ✅ Counted |
+| ✅ Good | 70 ~ 89 | ✅ Counted |
+| 🟡 Fair | 50 ~ 69 | ✅ Counted |
+| ❌ Discard | Below 50 | ✗ Not counted |
+
+```
+Daily Score = (Freshness × 0.35) + (Grill Accuracy × 0.45) + (Time Bonus × 0.20)
+```
+
+Every day, one guest. One chance. One burger.
