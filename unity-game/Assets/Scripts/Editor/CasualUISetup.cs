@@ -17,10 +17,12 @@ public static class CasualUISetup
     static readonly Color COL_TEAL   = new Color(0.15f, 0.55f, 0.65f, 0.94f);
     static readonly Color COL_WHITE  = Color.white;
     static readonly Color COL_PANEL_BG = new Color(0.10f, 0.18f, 0.28f, 0.92f);
+    static TMP_FontAsset _korFont;
 
     [MenuItem("Tools/Apply Casual UI")]
     public static void Apply()
     {
+        _korFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/MalgunGothic SDF.asset");
         // Unity 내장 9-slice 스프라이트 사용 (atlas 슬라이싱 불필요)
         Sprite uiSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         if (uiSprite == null)
@@ -136,11 +138,15 @@ public static class CasualUISetup
     static void SetTMP(string path, string text, int size, Color color)
     {
         var go = Find(path); if (go == null) return;
-        var t = go.GetComponent<TMP_Text>(); if (t == null) return;
+        var t = go.GetComponent<TextMeshProUGUI>() ?? go.GetComponent<TMP_Text>() as TextMeshProUGUI;
+        if (t == null)
+            t = go.AddComponent<TextMeshProUGUI>();
         t.text      = text;
         t.fontSize  = size;
         t.color     = color;
         t.fontStyle = FontStyles.Bold;
+        t.alignment = TextAlignmentOptions.Center;
+        if (_korFont != null) t.font = _korFont;
     }
 
     static void SetTMPColor(string path, Color color)
@@ -153,18 +159,42 @@ public static class CasualUISetup
     static void SetTMPIfExists(string path, string text, int size, Color color)
     {
         var go = Find(path); if (go == null) return;
-        var t = go.GetComponent<TMP_Text>(); if (t == null) return;
+        var t = go.GetComponent<TextMeshProUGUI>() ?? go.GetComponent<TMP_Text>() as TextMeshProUGUI;
+        if (t == null)
+            t = go.AddComponent<TextMeshProUGUI>();
         t.text = text; t.fontSize = size; t.color = color;
         t.fontStyle = FontStyles.Bold;
+        t.alignment = TextAlignmentOptions.Center;
+        if (_korFont != null) t.font = _korFont;
     }
 
     static void SetTMPChild(string path, string text, int size, Color color)
     {
         var go = Find(path); if (go == null) return;
-        var t = go.GetComponentInChildren<TMP_Text>(); if (t == null) return;
+        var t = go.GetComponentInChildren<TextMeshProUGUI>();
+        if (t == null)
+        {
+            var label = go.transform.Find("Label")?.gameObject;
+            if (label == null)
+            {
+                label = new GameObject("Label");
+                label.layer = go.layer;
+                label.AddComponent<RectTransform>();
+                label.transform.SetParent(go.transform, false);
+            }
+
+            var labelRT = label.GetComponent<RectTransform>();
+            labelRT.anchorMin = Vector2.zero;
+            labelRT.anchorMax = Vector2.one;
+            labelRT.offsetMin = new Vector2(4f, 2f);
+            labelRT.offsetMax = new Vector2(-4f, -2f);
+            t = label.GetComponent<TextMeshProUGUI>() ?? label.AddComponent<TextMeshProUGUI>();
+        }
         t.text      = text;
         t.fontSize  = size;
         t.color     = color;
         t.fontStyle = FontStyles.Bold;
+        t.alignment = TextAlignmentOptions.Center;
+        if (_korFont != null) t.font = _korFont;
     }
 }
