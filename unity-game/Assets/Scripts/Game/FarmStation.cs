@@ -61,7 +61,7 @@ public class FarmStation : Interactable
             case FarmStage.NeedsWater:
                 if (hand == null || !hand.Has(IngredientType.WateringCan))
                 {
-                    Debug.Log("[Farm] 양수기를 먼저 들어야 물을 줄 수 있어요.");
+                    Debug.Log("[Farm] Can 필요");
                     return;
                 }
                 run.TryWater(cropType, out _);
@@ -73,12 +73,12 @@ public class FarmStation : Interactable
                     // 왜 PlayerHand 대신 InventoryManager? CookStation이
                     // 여러 재료를 한 번에 요구하므로, 선반에 쌓아두는 방식이 자연스럼.
                     InventoryManager.I?.Add(cropType, 1);
-                    Debug.Log($"[Farm] {IngredientNames.Korean(cropType)} 수확 완료! 인벤토리에 추가됨.");
+                    Debug.Log($"[Farm] + {IngredientNames.Korean(cropType)}");
                 }
                 break;
 
             default:
-                Debug.Log("[Farm] 아직 준비가 안 됐어요!");
+                Debug.Log("[Farm] 아직 안 됨");
                 break;
         }
     }

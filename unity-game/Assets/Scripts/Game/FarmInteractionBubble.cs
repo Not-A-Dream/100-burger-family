@@ -121,21 +121,18 @@ public class FarmInteractionBubble : MonoBehaviour
 
         // ── 텍스트 (하단 3줄) ────────────────────────────────────
         _txtMain   = Text(_root.transform, "TxtMain",
-            new Vector2(0f, -53f), new Vector2(218f, 36f),
-            "", 13f, C_TEXT1);
+            new Vector2(0f, -40f), new Vector2(218f, 32f),
+            "", 11.5f, C_TEXT1);
         _txtAction = Text(_root.transform, "TxtAction",
-            new Vector2(0f, -79f), new Vector2(218f, 28f),
-            "", 14f, C_TEXT2, bold: true);
+            new Vector2(0f, -61f), new Vector2(218f, 22f),
+            "", 11.5f, C_TEXT2, bold: true);
         _txtTimer  = Text(_root.transform, "TxtTimer",
-            new Vector2(0f, -98f), new Vector2(232f, 22f),
-            "", 11.5f, C_TIMER);
+            new Vector2(0f, -80f), new Vector2(232f, 16f),
+            "", 9.2f, C_TIMER);
 
-        Rect(_root.transform, "TimeBadgeBg",
-            new Vector2(0f, -119f), new Vector2(224f, 28f),
-            new Color(0.18f, 0.34f, 0.48f, 0.92f));
         _txtTimeBadge = Text(_root.transform, "TxtTimeBadge",
-            new Vector2(0f, -119f), new Vector2(216f, 28f),
-            "", 15f, Color.white, bold: true);
+            new Vector2(74f, 106f), new Vector2(60f, 10f),
+            "", 5.2f, new Color(0.95f, 0.88f, 0.20f), bold: true);
 
         // ── 꼬리 삼각형 ──────────────────────────────────────────
         var tailGO = new GameObject("Tail");
@@ -421,11 +418,10 @@ public class FarmInteractionBubble : MonoBehaviour
     {
         // Play 중 스크립트를 다시 컴파일하면 기존 FarmBubble 오브젝트가 남아
         // 새 시간 배지가 없는 상태가 될 수 있다. 그때는 한 번만 재생성한다.
-        if (_root != null && _txtTimeBadge == null)
+        if (_root == null || _txtTimeBadge == null)
         {
-            Destroy(_root);
             BuildBubble();
-            _prevStage = (FarmStation.FarmStage)255;
+            if (_root == null) return;
         }
 
         if (_player == null)
@@ -511,34 +507,34 @@ public class FarmInteractionBubble : MonoBehaviour
         if (stage == FarmStation.FarmStage.Idle)
         {
             _txtTimer.text = "기준 시간: 씨앗 -> 새싹 2시간";
-            SetTimeBadge("새싹까지 2시간");
+            SetTimeBadge("2:00:00");
         }
         else if (stage == FarmStation.FarmStage.NeedsWater)
         {
             _txtTimer.text = "물 주기 후 열매까지 2분 25초";
-            SetTimeBadge("물 주면 02:25");
+            SetTimeBadge("02:25");
         }
         else if (stage == FarmStation.FarmStage.Seeded || stage == FarmStation.FarmStage.Growing)
         {
             int remaining = DailyBurgerRunManager.I.GetRemainingSeconds(_farm.cropType);
             string label = stage == FarmStation.FarmStage.Seeded ? "새싹까지" : "열매까지";
             _txtTimer.text = $"{label} 남은 시간: {FormatRemaining(remaining)}";
-            SetTimeBadge($"{label} {FormatRemaining(remaining)}");
+            SetTimeBadge(FormatRemaining(remaining));
             if (stage == FarmStation.FarmStage.Growing && DailyBurgerRunManager.I.HasActiveRun)
             {
                 _txtTimer.text += $" / 기록 {DailyBurgerRunManager.FormatSeconds(DailyBurgerRunManager.I.ActiveRunSeconds)}";
-                SetTimeBadge($"{label} {FormatRemaining(remaining)} | 기록 {DailyBurgerRunManager.FormatSeconds(DailyBurgerRunManager.I.ActiveRunSeconds)}");
+                SetTimeBadge(FormatRemaining(remaining));
             }
         }
         else if (stage == FarmStation.FarmStage.Ready)
         {
             _txtTimer.text = "수확 가능";
-            SetTimeBadge("지금 수확 가능");
+            SetTimeBadge("READY");
         }
         else if (stage == FarmStation.FarmStage.Harvested)
         {
             _txtTimer.text = "오늘 수확 완료";
-            SetTimeBadge("오늘 완료");
+            SetTimeBadge("DONE");
         }
         else
         {
@@ -553,6 +549,20 @@ public class FarmInteractionBubble : MonoBehaviour
             _txtTimeBadge.text = text;
     }
 
+    void ApplyLayout()
+    {
+        if (_txtTimeBadge != null)
+        {
+            var rt = _txtTimeBadge.rectTransform;
+            rt.anchorMin = new Vector2(1f, 1f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.pivot = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(72f, 108f);
+            rt.sizeDelta = new Vector2(56f, 10f);
+            _txtTimeBadge.fontSize = 5.0f;
+        }
+    }
+
     static string FormatRemaining(int seconds)
     {
         int h = seconds / 3600;
@@ -564,6 +574,33 @@ public class FarmInteractionBubble : MonoBehaviour
     }
 
     static void SetText(TMP_Text t, string s) { if (t != null) t.text = s; }
+
+    static TMP_FontAsset ResolveReadableFont()
+    {
+        foreach (var t in FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t != null && t.font != null && LooksReadable(t.font.name))
+                return t.font;
+        }
+
+        if (TMP_Settings.defaultFontAsset != null && LooksReadable(TMP_Settings.defaultFontAsset.name))
+            return TMP_Settings.defaultFontAsset;
+
+        foreach (var t in FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (t != null && t.font != null)
+                return t.font;
+
+        return Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+    }
+
+    static bool LooksReadable(string name)
+    {
+        return !string.IsNullOrEmpty(name)
+            && (name.IndexOf("Malgun", System.StringComparison.OrdinalIgnoreCase) >= 0
+             || name.IndexOf("Korean", System.StringComparison.OrdinalIgnoreCase) >= 0
+             || name.IndexOf("Noto", System.StringComparison.OrdinalIgnoreCase) >= 0
+             || name.IndexOf("Nanum", System.StringComparison.OrdinalIgnoreCase) >= 0);
+    }
 
     // ══════════════════════════════════════════════════════════════
     //  UI 헬퍼 — 모두 _root 기준 anchoredPosition 사용
@@ -635,8 +672,7 @@ public class FarmInteractionBubble : MonoBehaviour
         tmp.textWrappingMode = TextWrappingModes.Normal;
 
         // 한국어 폰트 자동 탐색
-        var font = Resources.Load<TMP_FontAsset>("Fonts & Materials/MalgunGothic SDF")
-                ?? FindFirstObjectByType<TMP_Text>()?.font;
+        var font = ResolveReadableFont();
         if (font != null) tmp.font = font;
 
         return tmp;

@@ -35,7 +35,7 @@ public class SupplyStation : Interactable
     {
         if (_cooldown > 0f)
         {
-            Debug.Log("[Supply] 쿨다운 중!");
+            Debug.Log("[Supply] Cooldown");
             return;
         }
 
@@ -48,6 +48,6 @@ public class SupplyStation : Interactable
         inv.Add(IngredientType.Sauce,    restockAmount);
 
         _cooldown = restockCooldown;
-        Debug.Log($"[Supply] 재료 보충 완료! (각 +{restockAmount})");
+        Debug.Log($"[Supply] +{restockAmount}");
     }
 }
