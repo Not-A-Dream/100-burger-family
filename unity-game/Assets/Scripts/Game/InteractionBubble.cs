@@ -43,7 +43,7 @@ public class InteractionBubble : MonoBehaviour
         _canvas.sortingOrder = 10;
 
         var rt = _bubbleGO.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(245f, 118f);
+        rt.sizeDelta = new Vector2(245f, 108f);
         rt.localScale = new Vector3(0.008f, 0.008f, 0.008f);
 
         // ── 말풍선 배경 ──────────────────────────────────
@@ -99,11 +99,11 @@ public class InteractionBubble : MonoBehaviour
         var badgeGO = new GameObject("TimeBadge");
         badgeGO.transform.SetParent(_bubbleGO.transform, false);
         var badgeRT = badgeGO.AddComponent<RectTransform>();
-        badgeRT.anchorMin = new Vector2(0.5f, 0f);
-        badgeRT.anchorMax = new Vector2(0.5f, 0f);
-        badgeRT.pivot = new Vector2(0.5f, 0f);
-        badgeRT.anchoredPosition = new Vector2(0f, 8f);
-        badgeRT.sizeDelta = new Vector2(220f, 34f);
+        badgeRT.anchorMin = new Vector2(1f, 1f);
+        badgeRT.anchorMax = new Vector2(1f, 1f);
+        badgeRT.pivot = new Vector2(1f, 1f);
+        badgeRT.anchoredPosition = new Vector2(-10f, -10f);
+        badgeRT.sizeDelta = new Vector2(72f, 12f);
 
         var badgeImg = badgeGO.AddComponent<Image>();
         badgeImg.color = new Color(0.05f, 0.24f, 0.42f, 0.96f);
@@ -118,7 +118,7 @@ public class InteractionBubble : MonoBehaviour
 
         _timeBadgeText = badgeTextGO.AddComponent<TextMeshProUGUI>();
         _timeBadgeText.text = "";
-        _timeBadgeText.fontSize = 22;
+        _timeBadgeText.fontSize = 6.5f;
         _timeBadgeText.color = Color.white;
         _timeBadgeText.alignment = TextAlignmentOptions.Center;
         _timeBadgeText.fontStyle = FontStyles.Bold;
@@ -146,6 +146,7 @@ public class InteractionBubble : MonoBehaviour
 
         if (_bubbleGO != null)
         {
+            ApplyLayout();
             _bubbleGO.SetActive(inRange);
 
             if (inRange)
@@ -167,6 +168,18 @@ public class InteractionBubble : MonoBehaviour
                 _bubbleGO.transform.localPosition = localPos;
             }
         }
+    }
+
+    void ApplyLayout()
+    {
+        if (_timeBadgeText == null) return;
+        var rt = _timeBadgeText.rectTransform;
+        rt.anchorMin = new Vector2(1f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(1f, 1f);
+        rt.anchoredPosition = new Vector2(-10f, -10f);
+        rt.sizeDelta = new Vector2(68f, 12f);
+        _timeBadgeText.fontSize = 6.5f;
     }
 
     string BuildTimeBadgeText()
@@ -201,17 +214,35 @@ public class InteractionBubble : MonoBehaviour
     {
         if (text == null) return;
 
-        var defaultFont = TMP_Settings.defaultFontAsset;
-        if (defaultFont != null)
-        {
-            text.font = defaultFont;
-            return;
-        }
-
-        // MalgunGothic SDF는 현재 프로젝트에서 atlas texture 경고가 나고 있어
-        // 깨진 에셋을 강제로 물리지 않는다.
-        var font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        var font = ResolveReadableFont();
         if (font != null)
             text.font = font;
+    }
+
+    static TMP_FontAsset ResolveReadableFont()
+    {
+        foreach (var t in FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t != null && t.font != null && LooksReadable(t.font.name))
+                return t.font;
+        }
+
+        if (TMP_Settings.defaultFontAsset != null && LooksReadable(TMP_Settings.defaultFontAsset.name))
+            return TMP_Settings.defaultFontAsset;
+
+        foreach (var t in FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (t != null && t.font != null)
+                return t.font;
+
+        return Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+    }
+
+    static bool LooksReadable(string name)
+    {
+        return !string.IsNullOrEmpty(name)
+            && (name.IndexOf("Malgun", System.StringComparison.OrdinalIgnoreCase) >= 0
+             || name.IndexOf("Korean", System.StringComparison.OrdinalIgnoreCase) >= 0
+             || name.IndexOf("Noto", System.StringComparison.OrdinalIgnoreCase) >= 0
+             || name.IndexOf("Nanum", System.StringComparison.OrdinalIgnoreCase) >= 0);
     }
 }
