@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.1] - 2026-06-10
+
+### Fixed
+- Farm time sign no longer renders a large blue background over the crop prompt
+- Reduced farm time sign size and rebuilt legacy signs when old layout parts are detected
+- Simplified farm interaction bubble time badge so it does not cover the main text
+
+### Changed
+- Shortened several in-game debug/log messages for quicker feedback
+- Improved held item rendering so the watering can appears in-hand more clearly
+- Tuned HUD prompt and inventory text for tighter layout
+- Kept the quick action `Buttons` panel work separate for the other branch
+
 ## [0.5.0] - 2026-03-29
 
 ![Architecture](../images/making_001.png)
