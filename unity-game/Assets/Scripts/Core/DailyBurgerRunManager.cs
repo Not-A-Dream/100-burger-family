@@ -142,7 +142,7 @@ public class DailyBurgerRunManager : MonoBehaviour
 
         crop.PlantSeed(DateTime.UtcNow);
         SaveAndNotify();
-        message = $"{cropName} 씨앗을 심었습니다. 새싹까지 2시간 걸립니다.";
+        message = $"{cropName} 심음";
         Debug.Log($"[DailyRun] {message}");
         return true;
     }
@@ -167,7 +167,7 @@ public class DailyBurgerRunManager : MonoBehaviour
         crop.Water(DateTime.UtcNow);
         StartActiveRunIfNeeded();
         SaveAndNotify();
-        message = $"{cropName}에 물을 줬습니다. 2분 25초 후 수확할 수 있습니다.";
+        message = $"{cropName} 물";
         Debug.Log($"[DailyRun] {message}");
         return true;
     }
@@ -185,7 +185,7 @@ public class DailyBurgerRunManager : MonoBehaviour
 
         crop.Harvest(DateTime.UtcNow);
         SaveAndNotify();
-        message = $"{cropName}을 수확했습니다.";
+        message = $"{cropName} 수확";
         Debug.Log($"[DailyRun] {message}");
         return true;
     }
@@ -218,7 +218,7 @@ public class DailyBurgerRunManager : MonoBehaviour
         _data.activeRunStartedAtUtcTicks = 0;
         SaveAndNotify();
 
-        Debug.Log($"[DailyRun] 오늘의 버거 완성! 액티브 기록 {FormatSeconds(activeSeconds)}");
+        Debug.Log($"[DailyRun] 완료 {FormatSeconds(activeSeconds)}");
         return true;
     }
 
@@ -241,7 +241,7 @@ public class DailyBurgerRunManager : MonoBehaviour
 
         StartActiveRunIfNeeded();
         SaveAndNotify();
-        Debug.Log("[DailyRun] 테스트: 모든 작물을 바로 수확 가능 상태로 만들었습니다.");
+        Debug.Log("[DailyRun] 테스트 완료");
     }
 
     public static string FormatSeconds(float seconds)
