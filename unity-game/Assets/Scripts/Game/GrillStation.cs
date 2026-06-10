@@ -31,7 +31,7 @@ public class GrillStation : Interactable
             {
                 _stage = GrillStage.Done;
                 _timer = collectWindow;
-                Debug.Log("[Grill] 굽기 완료! 빨리 꺼내세요!");
+                Debug.Log("[Grill] Done");
             }
         }
         else if (_stage == GrillStage.Done)
@@ -40,7 +40,7 @@ public class GrillStation : Interactable
             if (_timer <= 0f)
             {
                 _stage = GrillStage.Burned;
-                Debug.Log("[Grill] 탔어요! 재료 소실.");
+                Debug.Log("[Grill] Burned");
             }
         }
     }
@@ -80,14 +80,14 @@ public class GrillStation : Interactable
                     || !inv.Has(IngredientType.RawPatty)
                     || !inv.Has(IngredientType.RawBacon))
                 {
-                    Debug.Log("[Grill] 재료 없음! 인벤토리에 생패티+생베이컨 필요.");
+                    Debug.Log("[Grill] 재료 없음");
                     return;
                 }
                 inv.TryUse(IngredientType.RawPatty);
                 inv.TryUse(IngredientType.RawBacon);
                 _stage = GrillStage.Grilling;
                 _timer = grillTime;
-                Debug.Log("[Grill] 굽기 시작!");
+                Debug.Log("[Grill] Start");
                 break;
 
             case GrillStage.Done:
@@ -95,17 +95,17 @@ public class GrillStation : Interactable
                 inv?.Add(IngredientType.GrilledPatty);
                 inv?.Add(IngredientType.GrilledBacon);
                 _stage = GrillStage.Idle;
-                Debug.Log("[Grill] 구운 패티+베이컨 인벤토리에 추가!");
+                Debug.Log("[Grill] + Grilled");
                 break;
 
             case GrillStage.Burned:
                 // 탄 재료 정리 (소실)
                 _stage = GrillStage.Idle;
-                Debug.Log("[Grill] 탄 재료 정리 완료.");
+                Debug.Log("[Grill] Reset");
                 break;
 
             default:
-                Debug.Log("[Grill] 아직 굽는 중...");
+                Debug.Log("[Grill] Busy");
                 break;
         }
     }
