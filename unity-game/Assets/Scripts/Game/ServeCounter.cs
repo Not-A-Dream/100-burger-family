@@ -13,7 +13,7 @@ public class ServeCounter : Interactable
     {
         if (!hand.Has(IngredientType.AssembledBurger))
         {
-            Debug.Log("[Serve] 완성 버거가 없어요! 조리대에서 먼저 완성하세요.");
+            Debug.Log("[Serve] Burger 필요");
             return;
         }
 
@@ -25,6 +25,6 @@ public class ServeCounter : Interactable
 
         hand.Drop();
         GameManager.I?.ServeBurger();
-        Debug.Log("[Serve] 버거 서빙 완료!");
+        Debug.Log("[Serve] +1");
     }
 }
