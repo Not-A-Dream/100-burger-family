@@ -33,14 +33,14 @@ public class WateringCanStation : Interactable
 
         if (!hand.IsEmpty)
         {
-            Debug.Log("[WateringCan] 손이 가득 찼어요. 먼저 들고 있는 것을 내려놓으세요.");
+            Debug.Log("[Can] 손이 찼어요.");
             return;
         }
 
         hand.PickUp(IngredientType.WateringCan);
         HeldInstance = this;
         AttachToPlayerHand(hand.transform);
-        Debug.Log("[WateringCan] 양수기를 들었습니다.");
+        Debug.Log("[Can] +");
     }
 
     public static bool TryDropHeld(PlayerHand hand, Transform player)
@@ -52,7 +52,7 @@ public class WateringCanStation : Interactable
         if (station == null)
         {
             hand.Drop();
-            Debug.LogWarning("[WateringCan] 내려놓을 양수기 오브젝트를 찾지 못했습니다.");
+            Debug.LogWarning("[Can] 내려놓을 수 없어요.");
             return false;
         }
 
@@ -65,7 +65,7 @@ public class WateringCanStation : Interactable
         HeldInstance = null;
 
         hand.Drop();
-        Debug.Log($"[WateringCan] 양수기를 바닥에 내려놓았습니다. 위치: {dropPos}");
+        Debug.Log("[Can] -");
         return true;
     }
 

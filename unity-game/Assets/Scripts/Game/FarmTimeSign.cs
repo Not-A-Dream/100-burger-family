@@ -15,7 +15,7 @@ using UnityEngine.UI;
 public class FarmTimeSign : MonoBehaviour
 {
     public float showDistance = 2.8f;
-    public Vector3 offset = new Vector3(0f, 2.05f, 0f);
+    public Vector3 offset = new Vector3(0f, 1.72f, 0f);
 
     FarmStation _farm;
     PlayerController _player;
@@ -38,6 +38,8 @@ public class FarmTimeSign : MonoBehaviour
     {
         _farm = GetComponent<FarmStation>();
         _player = FindFirstObjectByType<PlayerController>();
+        if (NeedsRebuild())
+            DestroyRoot();
         if (_root == null)
             BuildSign();
     }
@@ -46,6 +48,9 @@ public class FarmTimeSign : MonoBehaviour
     {
         if (_player == null)
             _player = FindFirstObjectByType<PlayerController>();
+
+        if (NeedsRebuild())
+            DestroyRoot();
 
         if (_root == null)
             BuildSign();
@@ -63,6 +68,26 @@ public class FarmTimeSign : MonoBehaviour
         RefreshVisuals();
     }
 
+    bool NeedsRebuild()
+    {
+        return _root != null && _root.transform.Find("BG") != null;
+    }
+
+    void DestroyRoot()
+    {
+        if (_root == null) return;
+
+        if (Application.isPlaying)
+            Destroy(_root);
+        else
+            DestroyImmediate(_root);
+
+        _root = null;
+        _iconRoot = null;
+        _digitsRoot = null;
+        _lastClock = "";
+    }
+
     void BuildSign()
     {
         _root = new GameObject("FarmTimeSign");
@@ -74,27 +99,8 @@ public class FarmTimeSign : MonoBehaviour
         canvas.sortingOrder = 80;
 
         var rt = _root.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(300f, 82f);
-        rt.localScale = Vector3.one * 0.01f;
-
-        var bg = new GameObject("BG");
-        bg.transform.SetParent(_root.transform, false);
-        var bgRT = bg.AddComponent<RectTransform>();
-        bgRT.anchorMin = Vector2.zero;
-        bgRT.anchorMax = Vector2.one;
-        bgRT.offsetMin = Vector2.zero;
-        bgRT.offsetMax = Vector2.zero;
-        bg.AddComponent<Image>().color = new Color(0.04f, 0.22f, 0.42f, 0.96f);
-
-        var line = new GameObject("Accent");
-        line.transform.SetParent(_root.transform, false);
-        var lineRT = line.AddComponent<RectTransform>();
-        lineRT.anchorMin = new Vector2(0f, 0f);
-        lineRT.anchorMax = new Vector2(1f, 0f);
-        lineRT.pivot = new Vector2(0.5f, 0f);
-        lineRT.sizeDelta = new Vector2(0f, 5f);
-        lineRT.anchoredPosition = Vector2.zero;
-        line.AddComponent<Image>().color = new Color(1f, 0.78f, 0.20f, 1f);
+        rt.sizeDelta = new Vector2(156f, 42f);
+        rt.localScale = Vector3.one * 0.0085f;
 
         _iconRoot = new GameObject("CropIcon");
         _iconRoot.transform.SetParent(_root.transform, false);
@@ -102,8 +108,8 @@ public class FarmTimeSign : MonoBehaviour
         iconRT.anchorMin = new Vector2(0f, 0.5f);
         iconRT.anchorMax = new Vector2(0f, 0.5f);
         iconRT.pivot = new Vector2(0.5f, 0.5f);
-        iconRT.anchoredPosition = new Vector2(42f, 2f);
-        iconRT.sizeDelta = new Vector2(64f, 64f);
+        iconRT.anchoredPosition = new Vector2(14f, 0f);
+        iconRT.sizeDelta = new Vector2(26f, 26f);
 
         _digitsRoot = new GameObject("DigitalClock");
         _digitsRoot.transform.SetParent(_root.transform, false);
@@ -111,8 +117,8 @@ public class FarmTimeSign : MonoBehaviour
         digitsRT.anchorMin = new Vector2(0f, 0.5f);
         digitsRT.anchorMax = new Vector2(0f, 0.5f);
         digitsRT.pivot = new Vector2(0f, 0.5f);
-        digitsRT.anchoredPosition = new Vector2(82f, 0f);
-        digitsRT.sizeDelta = new Vector2(208f, 60f);
+        digitsRT.anchoredPosition = new Vector2(38f, 0f);
+        digitsRT.sizeDelta = new Vector2(110f, 26f);
 
         BuildCropIcon();
 
@@ -130,6 +136,9 @@ public class FarmTimeSign : MonoBehaviour
 
     string BuildClockText()
     {
+        if (DailyBurgerRunManager.I == null)
+            return "0:00";
+
         int remaining = DailyBurgerRunManager.I.GetRemainingSeconds(_farm.cropType);
 
         return _farm.Stage switch

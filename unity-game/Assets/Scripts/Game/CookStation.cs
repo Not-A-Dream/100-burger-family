@@ -85,7 +85,7 @@ public class CookStation : Interactable
             case CookStage.Idle:
                 if (!HasAllIngredients())
                 {
-                    Debug.Log($"[Cook] 재료 부족: {BuildMissingList()}");
+                    Debug.Log($"[Cook] 재료: {BuildMissingList()}");
                     return;
                 }
                 // 필요 재료 전부 소비
@@ -93,29 +93,29 @@ public class CookStation : Interactable
                     InventoryManager.I?.TryUse(t);
                 _stage = CookStage.Preparing;
                 _timer = prepareTime;
-                Debug.Log("[Cook] 버거 조립 시작!");
+                Debug.Log("[Cook] Start");
                 break;
 
             case CookStage.AddSauce:
                 // 소스 뿌리기 완료 → 완성 대기
                 _stage = CookStage.Done;
-                Debug.Log("[Cook] 소스 완료! 버거 완성 대기중.");
+                Debug.Log("[Cook] Ready");
                 break;
 
             case CookStage.Done:
                 // 손에 들기
                 if (!hand.IsEmpty)
                 {
-                    Debug.Log("[Cook] 손이 가득 찼어요! 먼저 내려놓으세요.");
+                    Debug.Log("[Cook] 손이 찼어요");
                     return;
                 }
                 hand.PickUp(IngredientType.AssembledBurger);
                 _stage = CookStage.Idle;
-                Debug.Log("[Cook] 완성 버거 획득!");
+                Debug.Log("[Cook] + Burger");
                 break;
 
             default:
-                Debug.Log("[Cook] 아직 만들고 있어요...");
+                Debug.Log("[Cook] Busy");
                 break;
         }
     }

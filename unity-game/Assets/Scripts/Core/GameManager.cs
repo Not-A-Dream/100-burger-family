@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviour
         CheckAchievements();
         state.lastMessage = $"버거 완성! 기록 {DailyBurgerRunManager.FormatSeconds(activeSeconds)} / 누적 {state.burgerCount}개";
         NotifyChanged();
-        Debug.Log($"[GameManager] 버거 서빙! 기록 {DailyBurgerRunManager.FormatSeconds(activeSeconds)} / 총 {state.burgerCount}개 / 스트릭 {CurrentStreak}일");
+        Debug.Log($"[Game] +1 {state.burgerCount} / {CurrentStreak}d / {DailyBurgerRunManager.FormatSeconds(activeSeconds)}");
     }
 
     /// <summary>부모 물주기 (협력 메커니즘 유지)</summary>
@@ -174,7 +174,7 @@ public class GameManager : MonoBehaviour
         UnlockedAchievements.Add(id);
         state.lastMessage = $"업적 달성: {label}";
         OnAchievementUnlocked?.Invoke(id, label);
-        Debug.Log($"[Achievement] {label}");
+        Debug.Log($"[Ach] {label}");
     }
 
     void NotifyChanged() => OnStateChanged?.Invoke();
