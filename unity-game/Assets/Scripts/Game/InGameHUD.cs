@@ -35,6 +35,8 @@ public class InGameHUD : MonoBehaviour
 
     void Start()
     {
+        AutoBindFallbackReferences();
+
         if (GameManager.I != null)
         {
             GameManager.I.OnStateChanged += RefreshBurgerCount;
@@ -64,6 +66,59 @@ public class InGameHUD : MonoBehaviour
         if (heldItemText) heldItemText.text = "";
 
         EnsureDebugCompleteButton();
+    }
+
+    void AutoBindFallbackReferences()
+    {
+        if (burgerCountText == null)
+            burgerCountText = FindText("Text_BurgerCount", "BurgerCountText");
+        if (heldItemText == null)
+            heldItemText = FindText("Text_HeldItem", "HeldItemText", "HeldItem");
+        if (promptText == null)
+            promptText = FindText("Text_Prompt", "PromptText");
+        if (inventoryText == null)
+            inventoryText = FindText("Text_Inventory", "InventoryText", "Text_InventorySummary");
+    }
+
+    TMP_Text FindText(params string[] names)
+    {
+        var canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null) return null;
+
+        var preferredRoot = canvas.transform.Find("AssetPackHUD");
+        if (preferredRoot != null)
+        {
+            foreach (var name in names)
+            {
+                var t = FindTextRecursive(preferredRoot, name);
+                if (t != null)
+                    return t.GetComponent<TMP_Text>() ?? t.GetComponentInChildren<TMP_Text>(true);
+            }
+        }
+
+        foreach (var name in names)
+        {
+            var t = FindTextRecursive(canvas.transform, name);
+            if (t != null)
+                return t.GetComponent<TMP_Text>() ?? t.GetComponentInChildren<TMP_Text>(true);
+        }
+
+        return null;
+    }
+
+    Transform FindTextRecursive(Transform root, string targetName)
+    {
+        if (root.name == targetName)
+            return root;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            var found = FindTextRecursive(root.GetChild(i), targetName);
+            if (found != null)
+                return found;
+        }
+
+        return null;
     }
 
     void OnDestroy()

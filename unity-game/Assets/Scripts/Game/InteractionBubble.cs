@@ -1,28 +1,28 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
-/// <summary>
-/// 스테이션 위에 떠다니는 말풍선 프롬프트.
-/// 플레이어가 가까이 오면 나타나고 멀어지면 사라집니다.
-/// </summary>
 [RequireComponent(typeof(Interactable))]
 public class InteractionBubble : MonoBehaviour
 {
-    [Header("말풍선 설정")]
-    public float showDistance  = 2.5f;    // 상호작용 감지 거리 (PlayerController.interactSearchRadius와 맞춤)
-    public float bobAmplitude  = 0.06f;   // 위아래 둥실 정도
-    public float bobSpeed      = 2.0f;
-    public Vector3 offset      = new Vector3(0f, 1.8f, 0f);  // 오브젝트 위 표시 위치
+    public float showDistance = 2.5f;
+    public float bobAmplitude = 0.05f;
+    public float bobSpeed = 2.0f;
+    public Vector3 offset = new Vector3(0f, 1.8f, 0f);
+
+    static readonly Color BgColor = new Color(0.98f, 0.96f, 0.87f, 0.95f);
+    static readonly Color BorderColor = new Color(0.55f, 0.36f, 0.10f, 1f);
+    static readonly Color TextColor = new Color(0.16f, 0.10f, 0.04f, 1f);
+    static readonly Color BadgeColor = new Color(0.06f, 0.26f, 0.46f, 0.96f);
 
     Interactable _interactable;
-    Canvas       _canvas;
-    TMP_Text     _text;
-    TMP_Text     _timeBadgeText;
-    GameObject   _bubbleGO;
-
     PlayerController _player;
-    float            _bobTimer;
+    GameObject _root;
+    TMP_Text _text;
+    TMP_Text _badgeText;
+    float _bobTimer;
+    string _lastPrompt = "";
+    string _lastBadge = "";
 
     void Start()
     {
@@ -33,153 +33,76 @@ public class InteractionBubble : MonoBehaviour
 
     void BuildBubble()
     {
-        // ── World Space Canvas ───────────────────────────
-        _bubbleGO = new GameObject("InteractionBubble");
-        _bubbleGO.transform.SetParent(transform, false);
-        _bubbleGO.transform.localPosition = offset;
+        _root = new GameObject("InteractionBubble");
+        _root.transform.SetParent(transform, false);
+        _root.transform.localPosition = offset;
 
-        _canvas = _bubbleGO.AddComponent<Canvas>();
-        _canvas.renderMode = RenderMode.WorldSpace;
-        _canvas.sortingOrder = 10;
+        var canvas = _root.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.sortingOrder = 15;
 
-        var rt = _bubbleGO.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(245f, 108f);
-        rt.localScale = new Vector3(0.008f, 0.008f, 0.008f);
+        var rt = _root.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(220f, 92f);
+        rt.localScale = Vector3.one * 0.0076f;
 
-        // ── 말풍선 배경 ──────────────────────────────────
-        var bgGO = new GameObject("BG");
-        bgGO.transform.SetParent(_bubbleGO.transform, false);
-        var bgRT = bgGO.AddComponent<RectTransform>();
-        bgRT.anchorMin = Vector2.zero;
-        bgRT.anchorMax = Vector2.one;
-        bgRT.offsetMin = Vector2.zero;
-        bgRT.offsetMax = Vector2.zero;
+        var bg = AddRect(_root.transform, "BG", Vector2.zero, new Vector2(220f, 92f), BgColor);
+        var outline = bg.gameObject.AddComponent<Outline>();
+        outline.effectColor = BorderColor;
+        outline.effectDistance = new Vector2(1.4f, -1.4f);
 
-        var bgImg = bgGO.AddComponent<Image>();
-        bgImg.color  = new Color(1f, 1f, 0.88f, 0.95f);   // 크림 노란색
-        bgImg.sprite = null;
-        bgImg.type   = Image.Type.Simple;
+        var badge = AddRect(_root.transform, "Badge", new Vector2(0f, 31f), new Vector2(64f, 10f), BadgeColor);
+        badge.anchorMin = badge.anchorMax = new Vector2(0.5f, 1f);
+        badge.pivot = new Vector2(0.5f, 1f);
+        badge.anchoredPosition = new Vector2(0f, -5f);
+        _badgeText = AddText(badge, "BadgeText", Vector2.zero, new Vector2(60f, 8f), "", 5.0f, Color.white, true);
 
-        // 꼬리 삼각형 (작은 쿼드를 회전시킴)
-        var tailGO = new GameObject("Tail");
-        tailGO.transform.SetParent(_bubbleGO.transform, false);
-        var tailRT = tailGO.AddComponent<RectTransform>();
-        tailRT.anchorMin = new Vector2(0.5f, 0f);
-        tailRT.anchorMax = new Vector2(0.5f, 0f);
-        tailRT.pivot     = new Vector2(0.5f, 1f);
-        tailRT.sizeDelta = new Vector2(22f, 16f);
-        tailRT.anchoredPosition = new Vector2(0f, 0f);
-        tailRT.localRotation = Quaternion.Euler(0f, 0f, 0f);
-        var tailImg = tailGO.AddComponent<Image>();
-        tailImg.color  = new Color(1f, 1f, 0.88f, 0.95f);
-        tailImg.sprite = null;
-        tailImg.type   = Image.Type.Simple;
-
-        // ── 텍스트 ───────────────────────────────────────
-        var textGO = new GameObject("Text");
-        textGO.transform.SetParent(_bubbleGO.transform, false);
-        var textRT = textGO.AddComponent<RectTransform>();
-        textRT.anchorMin = Vector2.zero;
-        textRT.anchorMax = Vector2.one;
-        textRT.offsetMin = new Vector2(10f, 42f);
-        textRT.offsetMax = new Vector2(-10f, -8f);
-
-        _text = textGO.AddComponent<TextMeshProUGUI>();
-        _text.text      = "";
-        _text.fontSize  = 18;
-        _text.color     = new Color(0.15f, 0.10f, 0.05f);
+        _text = AddText(_root.GetComponent<RectTransform>(), "PromptText", new Vector2(0f, -4f), new Vector2(198f, 40f), "", 9.8f, TextColor, true);
+        _text.rectTransform.anchorMin = _text.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        _text.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        _text.rectTransform.anchoredPosition = new Vector2(0f, -6f);
         _text.alignment = TextAlignmentOptions.Center;
-        _text.fontStyle = FontStyles.Bold;
+        _text.enableWordWrapping = true;
 
-        ApplyReadableFont(_text);
-
-        // ── 큰 시간 배지 ─────────────────────────────────
-        // 기존 말풍선 텍스트는 폰트 아틀라스 문제로 안 보일 수 있으므로,
-        // 숫자가 큰 별도 배지를 만들어 시간 정보가 반드시 눈에 띄게 한다.
-        var badgeGO = new GameObject("TimeBadge");
-        badgeGO.transform.SetParent(_bubbleGO.transform, false);
-        var badgeRT = badgeGO.AddComponent<RectTransform>();
-        badgeRT.anchorMin = new Vector2(1f, 1f);
-        badgeRT.anchorMax = new Vector2(1f, 1f);
-        badgeRT.pivot = new Vector2(1f, 1f);
-        badgeRT.anchoredPosition = new Vector2(-10f, -10f);
-        badgeRT.sizeDelta = new Vector2(72f, 12f);
-
-        var badgeImg = badgeGO.AddComponent<Image>();
-        badgeImg.color = new Color(0.05f, 0.24f, 0.42f, 0.96f);
-
-        var badgeTextGO = new GameObject("TimeText");
-        badgeTextGO.transform.SetParent(badgeGO.transform, false);
-        var badgeTextRT = badgeTextGO.AddComponent<RectTransform>();
-        badgeTextRT.anchorMin = Vector2.zero;
-        badgeTextRT.anchorMax = Vector2.one;
-        badgeTextRT.offsetMin = Vector2.zero;
-        badgeTextRT.offsetMax = Vector2.zero;
-
-        _timeBadgeText = badgeTextGO.AddComponent<TextMeshProUGUI>();
-        _timeBadgeText.text = "";
-        _timeBadgeText.fontSize = 6.5f;
-        _timeBadgeText.color = Color.white;
-        _timeBadgeText.alignment = TextAlignmentOptions.Center;
-        _timeBadgeText.fontStyle = FontStyles.Bold;
-        ApplyReadableFont(_timeBadgeText);
-
-        _bubbleGO.SetActive(false);
+        _root.SetActive(false);
     }
 
     void Update()
     {
         if (_player == null)
-        {
             _player = FindFirstObjectByType<PlayerController>();
+
+        if (_player == null || _root == null)
             return;
-        }
 
-        if (_bubbleGO != null && _timeBadgeText == null)
+        bool inRange = Vector3.Distance(transform.position, _player.transform.position) <= showDistance;
+        _root.SetActive(inRange);
+        if (!inRange)
+            return;
+
+        if (Camera.main != null)
+            _root.transform.rotation = Camera.main.transform.rotation;
+
+        _bobTimer += Time.deltaTime * bobSpeed;
+        var pos = offset;
+        pos.y += Mathf.Sin(_bobTimer) * bobAmplitude;
+        _root.transform.localPosition = pos;
+
+        if (_interactable is FarmStation farm && DailyBurgerRunManager.I == null)
+            return;
+
+        string prompt = _interactable.GetPrompt();
+        string badge = BuildTimeBadgeText();
+        if (prompt != _lastPrompt)
         {
-            Destroy(_bubbleGO);
-            BuildBubble();
+            _lastPrompt = prompt;
+            _text.text = prompt;
         }
 
-        float dist = Vector3.Distance(transform.position, _player.transform.position);
-        bool inRange = dist <= showDistance;
-
-        if (_bubbleGO != null)
+        if (badge != _lastBadge)
         {
-            ApplyLayout();
-            _bubbleGO.SetActive(inRange);
-
-            if (inRange)
-            {
-                // 텍스트 갱신
-                if (_text != null)
-                    _text.text = _interactable.GetPrompt();
-                if (_timeBadgeText != null)
-                    _timeBadgeText.text = BuildTimeBadgeText();
-
-                // 카메라를 향해 항상 정면
-                if (Camera.main != null)
-                    _bubbleGO.transform.rotation = Camera.main.transform.rotation;
-
-                // 둥실 애니메이션
-                _bobTimer += Time.deltaTime * bobSpeed;
-                var localPos = offset;
-                localPos.y += Mathf.Sin(_bobTimer) * bobAmplitude;
-                _bubbleGO.transform.localPosition = localPos;
-            }
+            _lastBadge = badge;
+            _badgeText.text = badge;
         }
-    }
-
-    void ApplyLayout()
-    {
-        if (_timeBadgeText == null) return;
-        var rt = _timeBadgeText.rectTransform;
-        rt.anchorMin = new Vector2(1f, 1f);
-        rt.anchorMax = new Vector2(1f, 1f);
-        rt.pivot = new Vector2(1f, 1f);
-        rt.anchoredPosition = new Vector2(-10f, -10f);
-        rt.sizeDelta = new Vector2(68f, 12f);
-        _timeBadgeText.fontSize = 6.5f;
     }
 
     string BuildTimeBadgeText()
@@ -187,18 +110,21 @@ public class InteractionBubble : MonoBehaviour
         if (_interactable is not FarmStation farm)
             return "";
 
+        if (DailyBurgerRunManager.I == null)
+            return "";
+
         int remain = DailyBurgerRunManager.I.GetRemainingSeconds(farm.cropType);
         return farm.Stage switch
         {
-            FarmStation.FarmStage.Idle       => "SEED 2:00:00",
-            FarmStation.FarmStage.Seeded     => $"SPROUT {FormatClock(remain)}",
-            FarmStation.FarmStage.NeedsWater => "WATER -> 02:25",
-            FarmStation.FarmStage.Growing    => DailyBurgerRunManager.I.HasActiveRun
-                ? $"FRUIT {FormatClock(remain)} | RUN {DailyBurgerRunManager.FormatSeconds(DailyBurgerRunManager.I.ActiveRunSeconds)}"
-                : $"FRUIT {FormatClock(remain)}",
-            FarmStation.FarmStage.Ready      => "READY NOW",
-            FarmStation.FarmStage.Harvested  => "DONE TODAY",
-            _                                => ""
+            FarmStation.FarmStage.Idle => "SEED 2:00:00",
+            FarmStation.FarmStage.Seeded => $"SPROUT {FormatClock(remain)}",
+            FarmStation.FarmStage.NeedsWater => "WATER 02:25",
+            FarmStation.FarmStage.Growing => DailyBurgerRunManager.I.HasActiveRun
+                ? $"GROW {FormatClock(remain)} | RUN {DailyBurgerRunManager.FormatSeconds(DailyBurgerRunManager.I.ActiveRunSeconds)}"
+                : $"GROW {FormatClock(remain)}",
+            FarmStation.FarmStage.Ready => "READY NOW",
+            FarmStation.FarmStage.Harvested => "DONE TODAY",
+            _ => ""
         };
     }
 
@@ -210,10 +136,44 @@ public class InteractionBubble : MonoBehaviour
         return h > 0 ? $"{h}:{m:00}:{s:00}" : $"{m:00}:{s:00}";
     }
 
+    static RectTransform AddRect(Transform parent, string name, Vector2 center, Vector2 size, Color color)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = center;
+        rt.sizeDelta = size;
+
+        var img = go.AddComponent<Image>();
+        img.color = color;
+        return rt;
+    }
+
+    static TMP_Text AddText(RectTransform parent, string name, Vector2 center, Vector2 size, string text, float fontSize, Color color, bool bold)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = center;
+        rt.sizeDelta = size;
+
+        var tmp = go.AddComponent<TextMeshProUGUI>();
+        tmp.text = text;
+        tmp.fontSize = fontSize;
+        tmp.color = color;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.fontStyle = bold ? FontStyles.Bold : FontStyles.Normal;
+        tmp.enableWordWrapping = true;
+        ApplyReadableFont(tmp);
+        return tmp;
+    }
+
     static void ApplyReadableFont(TMP_Text text)
     {
-        if (text == null) return;
-
         var font = ResolveReadableFont();
         if (font != null)
             text.font = font;
@@ -221,28 +181,13 @@ public class InteractionBubble : MonoBehaviour
 
     static TMP_FontAsset ResolveReadableFont()
     {
-        foreach (var t in FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (t != null && t.font != null && LooksReadable(t.font.name))
-                return t.font;
-        }
+        var preferred = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        if (preferred != null)
+            return preferred;
 
-        if (TMP_Settings.defaultFontAsset != null && LooksReadable(TMP_Settings.defaultFontAsset.name))
+        if (TMP_Settings.defaultFontAsset != null && TMP_Settings.defaultFontAsset.material != null)
             return TMP_Settings.defaultFontAsset;
 
-        foreach (var t in FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            if (t != null && t.font != null)
-                return t.font;
-
-        return Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
-    }
-
-    static bool LooksReadable(string name)
-    {
-        return !string.IsNullOrEmpty(name)
-            && (name.IndexOf("Malgun", System.StringComparison.OrdinalIgnoreCase) >= 0
-             || name.IndexOf("Korean", System.StringComparison.OrdinalIgnoreCase) >= 0
-             || name.IndexOf("Noto", System.StringComparison.OrdinalIgnoreCase) >= 0
-             || name.IndexOf("Nanum", System.StringComparison.OrdinalIgnoreCase) >= 0);
+        return TMP_Settings.defaultFontAsset;
     }
 }
