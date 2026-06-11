@@ -135,3 +135,8 @@
 
 ### Added
 - Initial Unity project setup (WebGL build target)
+# 2026-06-11
+
+- Added an asset-pack UI setup path for `Assets/ExternalAssets/AssetPackUI/pack_001.png`.
+- Reduced farm interaction/time bubbles so the timer badge no longer dominates the prompt text.
+- Bound `UIScreenController` HUD references to the active in-game panels in `SampleScene`.

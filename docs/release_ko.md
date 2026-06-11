@@ -133,3 +133,8 @@
 
 ### Added
 - Unity 프로젝트 초기 세팅 (WebGL 빌드 타겟)
+# 2026-06-11
+
+- `Assets/ExternalAssets/AssetPackUI/pack_001.png`를 기준으로 UI 적용 스크립트 경로를 추가했습니다.
+- 농장 상호작용/시간 말풍선을 줄여서 타이머 배지가 안내 문구를 덜 가리게 정리했습니다.
+- `SampleScene`의 `UIScreenController` HUD 참조를 활성 패널에 연결했습니다.

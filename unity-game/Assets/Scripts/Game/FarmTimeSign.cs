@@ -15,7 +15,7 @@ using UnityEngine.UI;
 public class FarmTimeSign : MonoBehaviour
 {
     public float showDistance = 2.8f;
-    public Vector3 offset = new Vector3(0f, 2.05f, 0f);
+    public Vector3 offset = new Vector3(0f, 1.72f, 0f);
 
     FarmStation _farm;
     PlayerController _player;
@@ -99,8 +99,8 @@ public class FarmTimeSign : MonoBehaviour
         canvas.sortingOrder = 80;
 
         var rt = _root.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(190f, 52f);
-        rt.localScale = Vector3.one * 0.01f;
+        rt.sizeDelta = new Vector2(156f, 42f);
+        rt.localScale = Vector3.one * 0.0085f;
 
         _iconRoot = new GameObject("CropIcon");
         _iconRoot.transform.SetParent(_root.transform, false);
@@ -108,8 +108,8 @@ public class FarmTimeSign : MonoBehaviour
         iconRT.anchorMin = new Vector2(0f, 0.5f);
         iconRT.anchorMax = new Vector2(0f, 0.5f);
         iconRT.pivot = new Vector2(0.5f, 0.5f);
-        iconRT.anchoredPosition = new Vector2(18f, 0f);
-        iconRT.sizeDelta = new Vector2(34f, 34f);
+        iconRT.anchoredPosition = new Vector2(14f, 0f);
+        iconRT.sizeDelta = new Vector2(26f, 26f);
 
         _digitsRoot = new GameObject("DigitalClock");
         _digitsRoot.transform.SetParent(_root.transform, false);
@@ -117,8 +117,8 @@ public class FarmTimeSign : MonoBehaviour
         digitsRT.anchorMin = new Vector2(0f, 0.5f);
         digitsRT.anchorMax = new Vector2(0f, 0.5f);
         digitsRT.pivot = new Vector2(0f, 0.5f);
-        digitsRT.anchoredPosition = new Vector2(50f, 0f);
-        digitsRT.sizeDelta = new Vector2(132f, 34f);
+        digitsRT.anchoredPosition = new Vector2(38f, 0f);
+        digitsRT.sizeDelta = new Vector2(110f, 26f);
 
         BuildCropIcon();
 
@@ -136,6 +136,9 @@ public class FarmTimeSign : MonoBehaviour
 
     string BuildClockText()
     {
+        if (DailyBurgerRunManager.I == null)
+            return "0:00";
+
         int remaining = DailyBurgerRunManager.I.GetRemainingSeconds(_farm.cropType);
 
         return _farm.Stage switch
