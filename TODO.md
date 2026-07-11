@@ -1,58 +1,70 @@
-
-```md
 # Current TODO
 
 ## Highest Priority
 
-### Gameplay
+### Migration
 
-- Finish FarmStation interaction flow
-- Finish CookStation cooking flow
-- Finish ServeCounter scoring flow
-- Complete harvest → cook → serve gameplay loop
+- Create UE5 project in `unreal-game/`
+- Use UE5 Top Down Template
+- Verify project opens in Unreal Editor
+- Configure Git LFS before committing `.uasset` and `.umap`
+
+---
+
+## Gameplay
+
+- Create `BP_InteractableBase`
+- Create interaction key flow
+- Create `BP_FarmStation`
+- Create `BP_CookStation`
+- Create `BP_ServeCounter`
+- Complete harvest -> cook -> serve gameplay loop
 
 ---
 
 ## Player
 
-- Tune movement feel
+- Tune Top Down movement
 - Tune interaction range
-- Tune interaction collider sizes
-- Improve isometric movement readability
-
----
-
-## Camera
-
-- Verify room visibility under TopPanel
-- Tune orthographic framing
-- Verify mobile visibility
+- Tune collision capsule and station collision
+- Improve camera readability
 
 ---
 
 ## UI
 
-- Improve gameplay HUD readability
-- Verify TopPanel layout stability
-- Reduce UI overlap issues
+- Create `WBP_HUD`
+- Show score
+- Show timer
+- Show current carried item
+- Show interaction prompt
+
+---
+
+## Data
+
+- Create `DA_Ingredient`
+- Create `DA_Recipe`
+- Keep first recipe simple
 
 ---
 
 ## Stability
 
-- Verify serialized references
-- Verify prefab overrides
-- Check missing Inspector references
-- Verify runtime object creation order
+- Verify Blueprint references
+- Verify map loads
+- Verify input actions
+- Verify cooked/served state transitions
 
 ---
 
-## Future Tasks (Not Now)
+## Future Tasks
 
-- Multiplayer
-- Firebase / Photon
-- Coupon rewards
-- WebGL optimization pass
+- Local co-op
+- restaurant/kitchen art pass
+- order queue
+- coupon rewards
+- Pixel Streaming or cloud demo
 - B2B demo build
 
 ---
@@ -63,72 +75,3 @@
 Do not overengineer.
 Build playable gameplay first.
 ```
-```
-
-
-```md
-# Current TODO
-
-## Highest Priority
-
-### Gameplay
-
-- Finish FarmStation interaction flow
-- Finish CookStation cooking flow
-- Finish ServeCounter scoring flow
-- Complete harvest → cook → serve gameplay loop
-
----
-
-## Player
-
-- Tune movement feel
-- Tune interaction range
-- Tune interaction collider sizes
-- Improve isometric movement readability
-
----
-
-## Camera
-
-- Verify room visibility under TopPanel
-- Tune orthographic framing
-- Verify mobile visibility
-
----
-
-## UI
-
-- Improve gameplay HUD readability
-- Verify TopPanel layout stability
-- Reduce UI overlap issues
-
----
-
-## Stability
-
-- Verify serialized references
-- Verify prefab overrides
-- Check missing Inspector references
-- Verify runtime object creation order
-
----
-
-## Future Tasks (Not Now)
-
-- Multiplayer
-- Firebase / Photon
-- Coupon rewards
-- WebGL optimization pass
-- B2B demo build
-
----
-
-## Current Development Rule
-
-```text
-Do not overengineer.
-Build playable gameplay first.
-```
-```
-

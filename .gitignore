@@ -1,27 +1,61 @@
 # =========================
-# Unity project folder
+# Unreal Engine 5
 # =========================
-unity-game/[Ll]ibrary/
-unity-game/[Tt]emp/
-unity-game/[Oo]bj/
-unity-game/[Bb]uild/
-unity-game/[Bb]uilds/
-unity-game/[Ll]ogs/
-unity-game/[Uu]serSettings/
-unity-game/MemoryCaptures/
-unity-game/Recordings/
+unreal-game/.vs/
+unreal-game/Binaries/
+unreal-game/Build/
+unreal-game/DerivedDataCache/
+unreal-game/Intermediate/
+unreal-game/Saved/
+unreal-game/Script/
 
-# Unused imported asset packs (excluded from current release)
-unity-game/Assets/2D Casual UI/
-unity-game/Assets/2D Casual UI.meta
-unity-game/Assets/Belevich/
-unity-game/Assets/Belevich.meta
-unity-game/Assets/ExternalAssets/
-unity-game/Assets/ExternalAssets.meta
-unity-game/Assets/mcp-unity-main.meta
+*.VC.db
+*.opensdf
+*.opendb
+*.sdf
+*.suo
+*.sln
+*.xcodeproj
+*.xcworkspace
 
-# Recovery / autosave
-unity-game/Assets/_Recovery/
+# Keep UE source and config.
+!unreal-game/Config/
+!unreal-game/Content/
+!unreal-game/Source/
+!unreal-game/*.uproject
+
+# =========================
+# Legacy Unity
+# =========================
+legacy-unity/unity-game/[Ll]ibrary/
+legacy-unity/unity-game/[Tt]emp/
+legacy-unity/unity-game/[Oo]bj/
+legacy-unity/unity-game/[Bb]uild/
+legacy-unity/unity-game/[Bb]uilds/
+legacy-unity/unity-game/[Ll]ogs/
+legacy-unity/unity-game/[Uu]serSettings/
+legacy-unity/unity-game/MemoryCaptures/
+legacy-unity/unity-game/Recordings/
+legacy-unity/unity-game/Assets/_Recovery/
+
+legacy-unity/My project/[Ll]ibrary/
+legacy-unity/My project/[Tt]emp/
+legacy-unity/My project/[Oo]bj/
+legacy-unity/My project/[Bb]uild/
+legacy-unity/My project/[Bb]uilds/
+legacy-unity/My project/[Ll]ogs/
+legacy-unity/My project/[Uu]serSettings/
+legacy-unity/My project/MemoryCaptures/
+legacy-unity/My project/Recordings/
+
+# Unused imported asset packs from the legacy Unity version.
+legacy-unity/unity-game/Assets/2D Casual UI/
+legacy-unity/unity-game/Assets/2D Casual UI.meta
+legacy-unity/unity-game/Assets/Belevich/
+legacy-unity/unity-game/Assets/Belevich.meta
+legacy-unity/unity-game/Assets/ExternalAssets/
+legacy-unity/unity-game/Assets/ExternalAssets.meta
+legacy-unity/unity-game/Assets/mcp-unity-main.meta
 
 # =========================
 # IDE / Editor
@@ -30,17 +64,10 @@ unity-game/Assets/_Recovery/
 .idea/
 .gradle/
 .consulo/
+.vscode/
 
-unity-game/.vs/
-unity-game/.idea/
-unity-game/.gradle/
-
-# Visual Studio / Rider / MonoDevelop
 *.csproj
 *.unityproj
-*.sln
-*.suo
-*.tmp
 *.user
 *.userprefs
 *.pidb
@@ -48,10 +75,7 @@ unity-game/.gradle/
 *.svd
 *.pdb
 *.mdb
-*.opendb
-*.VC.db
-
-# JetBrains Rider
+*.tmp
 *.DotSettings.user
 
 # =========================
@@ -66,10 +90,9 @@ desktop.ini
 # =========================
 .claude/
 .cursor/
-.vscode/
 
 # =========================
-# Local archives / reports / exports
+# Archives / reports / exports
 # =========================
 *.zip
 *.7z
@@ -77,7 +100,6 @@ desktop.ini
 *.tar
 *.gz
 
-# Generated analysis / temp outputs
 git_status.txt
 git_diff_stat.txt
 git_folder_summary.txt
@@ -93,4 +115,3 @@ git_folder_summary.txt
 *.DOCX
 *.xlsx
 *.XLSX
-

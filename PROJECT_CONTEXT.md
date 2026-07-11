@@ -1,30 +1,33 @@
-
-```md
-# 100 Burger Family — Project Context
+# 100 Burger Family - Project Context
 
 ## Project Overview
 
 Genre:
 - cooperative cooking simulation
 
-Platform:
-- Unity 6.3 LTS
-- WebGL-first
-- mobile-friendly target
+Engine:
+- Unreal Engine 5
+
+Current Direction:
+- full migration from Unity to UE5
+- Blueprint-first development
+- Top Down Template based MVP
 
 Core Fantasy:
-- parent ↔ child cooperation
-- harvest → cook → serve gameplay loop
+- parent and child cooperation
+- harvest, cook, serve gameplay loop
+- family-friendly kitchen chaos
 
 Business Direction:
 - family telecom bundle services
 - senior-care cooperative gameplay concepts
+- future AI-assisted content iteration
 
 ---
 
-# Current MVP Goal
+## Current MVP Goal
 
-Build a playable local co-op MVP.
+Build a playable UE5 local prototype.
 
 Priority:
 
@@ -34,136 +37,109 @@ Playable state > perfect architecture
 
 ---
 
-# Current Scene Structure
+## Target Project Structure
 
 ```text
-SampleScene
-├── Main Camera
-├── Directional Light
-├── EventSystem
-├── Canvas
-├── RoomScene
-└── DontDestroyOnLoad
+unreal-game/
+  100BurgerFamily.uproject
+  Config/
+  Content/
+    BurgerFamily/
+      Blueprints/
+        Core/
+        Player/
+        Stations/
+        UI/
+      Data/
+      Maps/
+      Materials/
+      Art/
+      Input/
+  Source/
+    100BurgerFamily/
+```
+
+Legacy Unity reference:
+
+```text
+legacy-unity/
 ```
 
 ---
 
-# Camera Setup
+## Recommended UE5 Starting Point
 
-```text
-Type: Orthographic
-Rotation: (30, -45, 0)
-Size: 7
-Look Target: (0, 2, 0)
-```
+Template:
+- Top Down Template
 
----
-
-# UI Structure
-
-```text
-Canvas
-├── TopPanel
-├── Buttons
-├── UIRoot
-│   ├── MainMenuPanel
-│   ├── LobbyPanel
-│   ├── InGamePanel
-│   └── ResultPanel
-├── DebugToggleBtn
-└── DebugPanel
-```
+Reason:
+- closest to current isometric cooking sim direction
+- fast player/camera setup
+- easy station interaction layout
+- good fit for Blueprint iteration
 
 ---
 
-# RoomScene Structure
+## Core Gameplay Loop
 
 ```text
-RoomScene
-├── Floor
-├── BackWall
-├── LeftWall
-├── FarmStation
-├── CookStation
-├── ServeCounter
-└── Player
+Harvest -> Cook -> Serve -> Score
 ```
 
----
-
-# Gameplay Stations
+Gameplay stations:
 
 | Station | Role |
 |---|---|
-| FarmStation | Harvest ingredients |
-| CookStation | Cook burgers |
-| ServeCounter | Serve burgers and increase score |
+| BP_FarmStation | Produce ingredients |
+| BP_CookStation | Cook burger items |
+| BP_ServeCounter | Serve orders and increase score |
 
 ---
 
-# Important Coordinates
-
-| Object | Position |
-|---|---|
-| FarmStation | (-2.5, 0.45, 3.5) |
-| CookStation | (0, 0.45, 1.0) |
-| ServeCounter | (2.5, 0.45, -1.5) |
-
----
-
-# Important Scripts
+## Initial Blueprint Targets
 
 ```text
-Assets/Scripts/
-├── Core/
-├── Game/
-├── UI/
-└── Editor/
-```
-
-Core gameplay scripts:
-
-```text
-GameManager.cs
-RoomManager.cs
-PlayerController.cs
-PlayerHand.cs
-FarmStation.cs
-CookStation.cs
-ServeCounter.cs
-Interactable.cs
-InteractionBubble.cs
-IsometricCameraController.cs
+BP_PlayerCharacter
+BP_InteractableBase
+BP_FarmStation
+BP_CookStation
+BP_ServeCounter
+BP_OrderManager
+BP_GameMode_BurgerFamily
+WBP_HUD
+DA_Ingredient
+DA_Recipe
 ```
 
 ---
 
-# Current Priorities
+## Current Priorities
 
-1. Finish FarmStation
-2. Finish CookStation
-3. Finish ServeCounter
-4. Tune movement and interaction
-5. Complete gameplay loop
+1. Create UE5 Top Down project under `unreal-game/`
+2. Configure input and camera
+3. Implement interaction key
+4. Implement FarmStation
+5. Implement CookStation
+6. Implement ServeCounter
+7. Add score and timer HUD
+8. Verify a 3-minute playable loop
 
 ---
 
-# Not Needed Yet
+## Not Needed Yet
 
 Do NOT prioritize:
 
-- ECS
-- Addressables
-- advanced DI systems
-- multiplayer abstraction
-- backend optimization
-- large-scale refactors
+- multiplayer
+- backend
+- Pixel Streaming
+- save systems
+- advanced GAS architecture
+- large C++ framework
+- production asset optimization
 
 Reason:
 
 ```text
 The project is still in MVP phase.
 ```
-```
-
----
