@@ -8,6 +8,18 @@
 - Use UE5 Top Down Template
 - Verify project opens in Unreal Editor
 - Configure Git LFS before committing `.uasset` and `.umap`
+- Verify UE5.8 availability and MCP plugin support
+- If UE5.8 is unstable, use the template-supported UE5 version first
+
+---
+
+## Codex / MCP Integration
+
+- Keep `external-demos/` local only
+- Use `docs/UE5_CODEX_MCP_SETUP.md` as the setup checklist
+- Confirm Unreal Editor exposes an MCP server or equivalent bridge
+- Register the Unreal MCP server with Codex after the UE project exists
+- Validate one safe read-only Editor command before automation work
 
 ---
 

@@ -94,6 +94,8 @@ desktop.ini
 # =========================
 # Archives / reports / exports
 # =========================
+external-demos/
+
 *.zip
 *.7z
 *.rar
